@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}iwa - Ingenioteca{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
+{% block content %}
+
+
+<div class="logo">
+  <h1>INGENIOTECA</h1>
+  <div class="subtitulo">El rincón de la mente creativa</div>
+</div>
+
+<div class="botones">
+  <button class="btn btn-jugar">
+    <div class="btn-text">Jugar</div>
+  </button>
+  <button class="btn btn-ingresar">
+    <div class="btn-text">Ingresar</div>
+  </button>
+  <button class="btn btn-salir">
+    <div class="btn-text">Salir</div>
+  </button>
+</div>
+
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <button class="close-modal" id="closeModal">&times;</button>
+
+    <!-- Contenedor de Juegos -->
+    <div class="games-container" id="gamesContainer" style="display: none;">
+    </div>
+
+    <!-- Contenedor de Login -->
+    <div class="login-container" id="loginContainer" style="display: none;">
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="login">Ingresar</button>
+        <button class="tab-btn" data-tab="register">Registrarse</button>
+      </div>
+
+      <!-- Tab Login -->
+      <div class="tab-content active" id="loginTab">
+        <div class="input-group">
+          <label for="loginUser">Apodo</label>
+          <input type="text" id="loginUser" placeholder="Tu apodo">
+        </div>
+        <div class="input-group">
+          <label for="loginPassword">Contraseña</label>
+          <input type="password" id="loginPassword" placeholder="Tu contraseña">
+        </div>
+        <button class="submit-btn">Ingresar</button>
+      </div>
+
+      <!-- Tab Register -->
+      <div class="tab-content" id="registerTab">
+        <div class="input-group">
+          <label for="registerName">Nombre Completo</label>
+          <input type="text" id="registerName" placeholder="Tu nombre completo">
+        </div>
+        <div class="input-group">
+          <label for="registerUser">Apodo</label>
+          <input type="text" id="registerUser" placeholder="Tu apodo">
+        </div>
+        <div class="input-group">
+          <label for="registerPassword">Contraseña</label>
+          <input type="password" id="registerPassword" placeholder="Tu contraseña">
+        </div>
+        <button class="submit-btn">Registrarse</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
+{% endblock %}

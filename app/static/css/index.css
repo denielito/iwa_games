@@ -1,0 +1,350 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    font-family: 'DejaVu Sans', sans-serif;
+    background-color: #1ABC9C;
+    overflow: hidden;
+    position: relative;
+}
+
+.logo {
+    position: absolute;
+    top: 15%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 5;
+    width: 100%;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
+
+.logo h1 {
+    font-family: 'Fredoka One', sans-serif;
+    font-size: clamp(2.5rem, 10vw, 5rem);
+    font-weight: 400;
+    color: #C8F526;
+    /* Verde limón */
+
+    /* Crea el borde turquesa fino */
+    -webkit-text-stroke: 3px #00CED1;
+
+    /* Crea el borde blanco grueso usando múltiples sombras */
+    text-shadow:
+        -6px -6px 0 #FFFFFF,
+        6px -6px 0 #FFFFFF,
+        -6px 6px 0 #FFFFFF,
+        6px 6px 0 #FFFFFF,
+        -6px 0 0 #FFFFFF,
+        6px 0 0 #FFFFFF,
+        0 6px 0 #FFFFFF,
+        0 -6px 0 #FFFFFF;
+
+    margin: 0;
+    background-color: transparent;
+}
+
+
+.subtitulo {
+    color: white;
+    font-size: clamp(1rem, 3vw, 1.8rem);
+    margin-top: 10px;
+}
+
+.botones {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 10;
+    width: 100%;
+}
+
+.btn {
+    display: block;
+    width: 290px;
+    height: 80px;
+    margin: 15px auto;
+    padding: 15px 0;
+    border-radius: 40px;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.btn-jugar,
+.btn-salir {
+    background-color: #FAD02E;
+    color: #2F2F2F;
+}
+
+.btn-jugar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #fffaa0;
+}
+
+.btn-ingresar {
+    background-color: white;
+    color: #2F2F2F;
+}
+
+.btn-ingresar:hover,
+.btn-salir:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #aaa;
+}
+
+.btn-text {
+    font-size: 40px;
+    color: #1ABC9C;
+}
+
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 15px;
+    width: 85%;
+    height: 0;
+    max-height: 70vh;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: expandModal 0.5s ease forwards;
+    position: relative;
+}
+
+@keyframes expandModal {
+    from {
+        height: 0;
+    }
+
+    to {
+        height: 70vh;
+    }
+}
+
+/* 🎮 Juegos */
+/* Contenedor principal centrado */
+.games-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Cuadrícula de juegos centrada y adaptable */
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 25px;
+    justify-content: center;
+    width: 100%;
+    max-width: 900px; /* controla el ancho máximo */
+    margin: 0 auto;
+}
+
+/* Tarjeta individual */
+.game-card {
+    background: #ffffff;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Efecto hover */
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Imagen del juego */
+.game-image {
+    width: 100%;
+    height: 70%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Nombre del juego */
+.game-name {
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.95rem;
+    border-top: 1px solid #eee;
+    height: 30%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Descripción flotante */
+.game-description-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.game-card:hover .game-description-overlay {
+    opacity: 1;
+}
+
+
+/* Login */
+.login-container {
+    padding: 30px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.tab-buttons {
+    display: flex;
+    margin-bottom: 30px;
+    background: #f0f0f0;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    color: #666;
+}
+
+.tab-btn.active {
+    background-color: #FFD700;
+    color: black;
+}
+
+.tab-content {
+    display: none;
+    width: 100%;
+    max-width: 400px;
+}
+
+.tab-content.active {
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.submit-btn {
+    padding: 12px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+}
+
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #f44336;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.close-modal:hover {
+    background: #da190b;
+}

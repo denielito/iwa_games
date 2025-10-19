@@ -1,0 +1,28 @@
+{
+  "juegos": [
+    {
+      "nombre": "Ecoinvernadero",
+      "html": "ecoinvernadero.html",
+      "descripcion": "Conecta y simula el ecoinvernadero del futuro, gestionando recursos y optimizando el crecimiento de plantas.",
+      "estado": "beta",
+      "ultima_actualizacion": "2025-10-10",
+      "portada": "img/ecoinvernadero.jpg"
+    },
+    {
+      "nombre": "Resistencia Heroica",
+      "html": "resistencia.html",
+      "descripcion": "Los tontos electrones intentan dañar a tu amigo el LED, conviertete en la resistencia heroica y defiendelo.",
+      "estado": "beta",
+      "ultima_actualizacion": "2025-09-02",
+      "portada": "static/assets/sprites/resistencia_heroica.png"
+    },
+    {
+      "nombre": "Conecta la Energía",
+      "html": "conectar.html",
+      "descripcion": "Espero que hayas puesto atención en clase de electricidad, porque vas a necesitar toda tu habilidad para conectar la energía y juntar el termino con su definición.",
+      "estado": "beta",
+      "ultima_actualizacion": "2025-10-15",
+      "portada": "img/conectar.jpg"
+    }
+  ]
+}

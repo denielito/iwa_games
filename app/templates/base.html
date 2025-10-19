@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iwa gamificares</title>
+    <title>{% block title %}IWA Gamificares{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='assets/sprites/logo270x270.png') }}" type="image/png">
+    {% block styles %}{% endblock %}
 </head>
 <body>
-
+    {% block content %}{% endblock %}
 </body>
 </html>
