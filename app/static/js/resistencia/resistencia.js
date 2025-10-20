@@ -68,11 +68,11 @@ class Electron {
     update(gameSpeed) {
         this.y += this.speed * gameSpeed;
 
-        const offset = 80 / this.gameHeight; // ángulo de inclinación ajustado
+        const offset = 80 / this.gameHeight;
         if (this.lane === 0) {
             this.x = this.initialX - (this.y - this.initialY) * offset - 10;
         } else if (this.lane === 1) {
-            this.x = this.initialX; // centro alineado
+            this.x = this.initialX;
         } else if (this.lane === 2) {
             this.x = this.initialX + (this.y - this.initialY) * offset + 12;
         }
@@ -112,11 +112,9 @@ class Player {
         this.lane = 1;
         this.targetLane = 1;
 
-        // Tamaño proporcional
         this.width = gameWidth * 0.09;
         this.height = gameHeight * 0.09;
 
-        // Posición inicial (centrado en la línea)
         this.y = this.gameY + gameHeight * 0.68;
         this.x = this.lanes[this.lane];
         this.targetX = this.x;
@@ -141,10 +139,8 @@ class Player {
     }
 
     updateTargetPosition() {
-        // Mismo offset que los electrones
         const offset = 80 / 680;
 
-        // Posición X exacta sobre la línea
         if (this.targetLane === 0) {
             this.targetX = this.lanes[0] - (this.y - this.gameY) * offset - 10;
         } else if (this.targetLane === 1) {
@@ -165,21 +161,17 @@ class Player {
     }
 
     draw(ctx) {
-        // Centrado exacto sobre la línea (ajuste fino con -width/2)
         const x = this.x - this.width / 2;
         const y = this.y - this.height / 2;
 
-        // Cuerpo del jugador
         ctx.fillStyle = COLORS.PLAYER_BROWN;
         ctx.fillRect(x, y, this.width, this.height);
 
-        // Bandas negras verticales
         const stripeWidth = this.width * 0.125;
         ctx.fillStyle = COLORS.BLACK;
         ctx.fillRect(x + this.width * 0.125, y + this.height * 0.1, stripeWidth, this.height * 0.8);
         ctx.fillRect(x + this.width * 0.625, y + this.height * 0.1, stripeWidth, this.height * 0.8);
 
-        // Borde dorado opcional para visibilidad
         ctx.strokeStyle = COLORS.GOLD;
         ctx.lineWidth = 2;
         ctx.strokeRect(x, y, this.width, this.height);
@@ -200,13 +192,12 @@ class ResistenciaOhm {
         this.gameX = (this.WIDTH - this.gameWidth) * 0.5;
         this.gameY = (this.HEIGHT - this.gameHeight) * 0.5;
 
-        // === POSICIONES X DE LAS LÍNEAS ===
         const centerX = this.gameX + this.gameWidth / 2;
         const laneSpacing = this.gameWidth / 3;
         this.lanes = [
-            centerX - laneSpacing / 1.5, // Izquierda
-            centerX,                     // Centro
-            centerX + laneSpacing / 1.5  // Derecha
+            centerX - laneSpacing / 1.5,
+            centerX,
+            centerX + laneSpacing / 1.5
         ];
 
         this.cableColor = CABLE_COLORS[Math.floor(Math.random() * CABLE_COLORS.length)];
@@ -231,20 +222,32 @@ class ResistenciaOhm {
         this.bossLane = 1;
         this.bossRadius = 25;
 
+        // Touch controls
+        this.touchStartX = 0;
+        this.touchActive = false;
+
         this.updateSpawnInterval();
         this.setupEventListeners();
     }
 
     setupEventListeners() {
         window.addEventListener('keydown', (e) => this.handleKeyDown(e));
+        window.addEventListener('keyup', (e) => this.handleKeyUp(e));
         this.canvas.addEventListener('click', (e) => this.handleClick(e));
+
+        // Touch events
+        this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e), false);
+        this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e), false);
     }
 
     handleKeyDown(e) {
         if (this.state === GameState.PLAYING) {
-            if (['a', 'A', 'q', 'Q'].includes(e.key)) {
+            // Izquierda: A, Q, ArrowLeft
+            if (['a', 'A', 'q', 'Q', 'ArrowLeft'].includes(e.key)) {
                 this.player.moveUp();
-            } else if (['d', 'D'].includes(e.key)) {
+            }
+            // Derecha: D, ArrowRight
+            else if (['d', 'D', 'ArrowRight'].includes(e.key)) {
                 this.player.moveDown();
             }
         } else if (this.state === GameState.GAME_OVER) {
@@ -252,6 +255,39 @@ class ResistenciaOhm {
                 this.restartGame();
             }
         }
+    }
+
+    handleKeyUp(e) {
+        // Aquí puedes agregar lógica de liberación de tecla si la necesitas
+    }
+
+    handleTouchStart(e) {
+        if (this.state !== GameState.PLAYING) return;
+
+        const touch = e.touches[0];
+        this.touchStartX = touch.clientX;
+        this.touchActive = true;
+    }
+
+    handleTouchEnd(e) {
+        if (this.state !== GameState.PLAYING || !this.touchActive) return;
+
+        const touch = e.changedTouches[0];
+        const touchEndX = touch.clientX;
+        const diff = touchEndX - this.touchStartX;
+        const minSwipeDistance = 30;
+
+        if (Math.abs(diff) > minSwipeDistance) {
+            if (diff < 0) {
+                // Deslizó a la izquierda
+                this.player.moveUp();
+            } else {
+                // Deslizó a la derecha
+                this.player.moveDown();
+            }
+        }
+
+        this.touchActive = false;
     }
 
     handleClick(e) {
@@ -500,7 +536,6 @@ class ResistenciaOhm {
         this.ctx.arc(bossX, this.bossY, this.bossRadius, 0, Math.PI * 2);
         this.ctx.stroke();
 
-        // ojos y sonrisa
         const eyeRadius = 3;
         this.ctx.fillStyle = COLORS.BLACK;
         this.ctx.beginPath();
@@ -523,24 +558,28 @@ class ResistenciaOhm {
         const panelW = 220;
         const panelH = 130;
 
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.fillRect(panelX, panelY, panelW, panelH);
-
-        this.ctx.strokeStyle = COLORS.GOLD;
+        // Panel con bordes redondeados y estilo institucional
+        this.roundRect(this.ctx, panelX, panelY, panelW, panelH, 15, '#FFF7E6'); // BEIGE
+        this.ctx.strokeStyle = '#1FC9BA'; // TURQUESA
         this.ctx.lineWidth = 3;
-        this.ctx.strokeRect(panelX, panelY, panelW, panelH);
+        this.ctx.stroke();
 
-        this.ctx.fillStyle = COLORS.WHITE;
-        this.ctx.font = '18px Arial';
+        // Título pequeño
+        this.ctx.fillStyle = '#079382'; // VERDE AZULADO
+        this.ctx.font = 'bold 20px Comic Sans MS';
         this.ctx.textAlign = 'center';
+        this.ctx.fillText('📊 Estado', panelX + panelW / 2, panelY + 30);
 
+        // Estadísticas
         const stats = [
-            `Vidas LED: ${this.lives}`,
-            `Puntos: ${this.points}`,
-            `Nivel: ${this.level}`
+            `💡 Vidas LED: ${this.lives}`,
+            `✨ Puntos: ${this.points}`,
+            `🚀 Nivel: ${this.level}`
         ];
 
-        let yOffset = panelY + 60;
+        this.ctx.fillStyle = '#06473d'; // VERDE PETROLEO
+        this.ctx.font = '18px Comic Sans MS';
+        let yOffset = panelY + 65;
         for (const stat of stats) {
             this.ctx.fillText(stat, panelX + panelW / 2, yOffset);
             yOffset += 25;
@@ -550,96 +589,148 @@ class ResistenciaOhm {
     drawNotifications() {
         for (const notif of this.notifications) {
             this.ctx.globalAlpha = notif.alpha;
-            this.ctx.fillStyle = 'rgba(30, 30, 30, 0.8)';
-            this.ctx.fillRect(notif.x - 100, notif.y - 20, 200, 40);
 
-            this.ctx.fillStyle = COLORS.GOLD;
-            this.ctx.font = 'bold 18px Arial';
+            // Fondo redondeado para la notificación
+            const notifW = 260;
+            const notifH = 50;
+            const notifX = notif.x - notifW / 2;
+            const notifY = notif.y - notifH / 2;
+
+            this.roundRect(this.ctx, notifX, notifY, notifW, notifH, 15, '#FFF7E6'); // BEIGE
+            this.ctx.strokeStyle = '#CEED1B'; // VERDE LIMÓN
+            this.ctx.lineWidth = 2;
+            this.ctx.stroke();
+
+            // Texto de la notificación
+            this.ctx.fillStyle = '#079382'; // VERDE AZULADO
+            this.ctx.font = 'bold 20px Comic Sans MS';
             this.ctx.textAlign = 'center';
-            this.ctx.fillText(notif.text, notif.x, notif.y + 5);
+            this.ctx.fillText(notif.text, notif.x, notif.y + 7);
+
             this.ctx.globalAlpha = 1;
         }
     }
 
+
     drawMenu() {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        // Fondo semitransparente
+        this.ctx.fillStyle = 'rgba(6, 71, 61, 0.85)'; // VERDE_PETROLEO con transparencia
         this.ctx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
 
-        const menuX = this.WIDTH / 2 - 300;
-        const menuY = this.HEIGHT / 2 - 150;
         const menuW = 600;
-        const menuH = 300;
+        const menuH = 400;
+        const menuX = this.WIDTH / 2 - menuW / 2;
+        const menuY = this.HEIGHT / 2 - menuH / 2;
 
-        this.ctx.fillStyle = 'rgba(30, 30, 30, 0.9)';
-        this.ctx.fillRect(menuX, menuY, menuW, menuH);
+        // Panel principal con bordes redondeados
+        this.roundRect(this.ctx, menuX, menuY, menuW, menuH, 25, '#FFF7E6'); // BEIGE
+        this.ctx.strokeStyle = '#1FC9BA'; // TURQUESA
+        this.ctx.lineWidth = 4;
+        this.ctx.stroke();
 
-        this.ctx.strokeStyle = COLORS.GOLD;
-        this.ctx.lineWidth = 3;
-        this.ctx.strokeRect(menuX, menuY, menuW, menuH);
-
-        this.ctx.fillStyle = COLORS.GOLD;
-        this.ctx.font = 'bold 32px Arial';
+        // Título
+        this.ctx.fillStyle = '#079382'; // VERDE_AZULADO
+        this.ctx.font = 'bold 40px Comic Sans MS';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('Reglas del Juego', this.WIDTH / 2, menuY + 40);
+        this.ctx.fillText('🌟 La Magia de la Ley de Ohm 🌟', this.WIDTH / 2, menuY + 60);
 
         const rules = [
-            '1. Usa A (Izquierda) y D (Derecha) para moverte',
-            '2. Ajusta el voltaje de los electrones',
-            '3. Objetivo: que lleguen al LED entre 1V y 3.3V',
-            '4. ¡Si logras entre 3.0V y 3.3V obtienes bonus!'
+            '1. Usa A/Q o D/Flechas para moverte ⚡',
+            '2. Ajusta el voltaje de los electrones 💡',
+            '3. Haz que el LED reciba entre 1V y 3.3V ✨',
+            '4. Bonus si logras entre 3.0V y 3.3V 🚀'
         ];
 
-        this.ctx.fillStyle = COLORS.WHITE;
-        this.ctx.font = '16px Arial';
-        let yOffset = menuY + 90;
+        // Reglas
+        this.ctx.fillStyle = '#06473d'; // VERDE PETROLEO oscuro
+        this.ctx.font = '20px Comic Sans MS';
+        let yOffset = menuY + 110;
         for (const rule of rules) {
             this.ctx.fillText(rule, this.WIDTH / 2, yOffset);
-            yOffset += 35;
+            yOffset += 40;
         }
 
-        this.ctx.fillStyle = COLORS.GOLD;
-        this.ctx.fillRect(this.WIDTH / 2 - 80, this.HEIGHT / 2 + 100, 160, 50);
-        this.ctx.fillStyle = '#000';
-        this.ctx.font = 'bold 20px Arial';
-        this.ctx.fillText('Acción', this.WIDTH / 2, this.HEIGHT / 2 + 132);
+        // Botón de acción
+        const btnW = 200;
+        const btnH = 60;
+        const btnX = this.WIDTH / 2 - btnW / 2;
+        const btnY = menuY + menuH - 90;
+
+        this.roundRect(this.ctx, btnX, btnY, btnW, btnH, 15, '#CEED1B'); // VERDE LIMÓN
+        this.ctx.strokeStyle = '#079382';
+        this.ctx.lineWidth = 3;
+        this.ctx.stroke();
+
+        this.ctx.fillStyle = '#06473d';
+        this.ctx.font = 'bold 24px Comic Sans MS';
+        this.ctx.fillText('¡JUGAR AHORA!', this.WIDTH / 2, btnY + 40);
     }
 
     drawGameOver() {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+        // Fondo oscuro con color institucional
+        this.ctx.fillStyle = 'rgba(7, 147, 130, 0.9)'; // VERDE_AZULADO translúcido
         this.ctx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
 
-        const panelW = 400;
-        const panelH = 250;
+        const panelW = 450;
+        const panelH = 300;
         const panelX = (this.WIDTH - panelW) / 2;
         const panelY = (this.HEIGHT - panelH) / 2;
 
-        this.ctx.fillStyle = 'rgba(30, 30, 30, 0.95)';
-        this.ctx.fillRect(panelX, panelY, panelW, panelH);
+        // Panel redondeado
+        this.roundRect(this.ctx, panelX, panelY, panelW, panelH, 25, '#FFF7E6');
+        this.ctx.strokeStyle = '#1FC9BA';
+        this.ctx.lineWidth = 4;
+        this.ctx.stroke();
 
-        this.ctx.strokeStyle = COLORS.GOLD;
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(panelX, panelY, panelW, panelH);
-
-        this.ctx.fillStyle = COLORS.GOLD;
-        this.ctx.font = 'bold 48px Arial';
+        // Título Game Over
+        this.ctx.fillStyle = '#CEED1B';
+        this.ctx.font = 'bold 50px Comic Sans MS';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('¡GAME OVER!', this.WIDTH / 2, panelY + 60);
+        this.ctx.fillText('¡Oh no! 😢', this.WIDTH / 2, panelY + 70);
 
-        this.ctx.fillStyle = COLORS.WHITE;
-        this.ctx.font = '28px Arial';
-        this.ctx.fillText(`Puntos: ${this.points}`, this.WIDTH / 2, panelY + 120);
+        this.ctx.fillStyle = '#06473d';
+        this.ctx.font = '24px Comic Sans MS';
+        this.ctx.fillText('El LED no sobrevivió...', this.WIDTH / 2, panelY + 120);
 
-        this.ctx.fillStyle = 'rgb(200, 200, 200)';
-        this.ctx.font = '18px Arial';
-        this.ctx.fillText('Presiona R para reiniciar', this.WIDTH / 2, panelY + 180);
+        this.ctx.fillStyle = '#079382';
+        this.ctx.font = '28px Comic Sans MS';
+        this.ctx.fillText(`Puntaje: ${this.points}`, this.WIDTH / 2, panelY + 170);
+
+        this.ctx.fillStyle = '#1FC9BA';
+        this.ctx.font = '20px Comic Sans MS';
+        this.ctx.fillText('Presiona R para intentarlo de nuevo ✨', this.WIDTH / 2, panelY + 230);
     }
+
+    // 📐 Función auxiliar para dibujar paneles con bordes redondeados
+    roundRect(ctx, x, y, width, height, radius, fillColor) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+    }
+
 
     draw() {
         this.ctx.fillStyle = COLORS.VERDE_PETROLEO;
         this.ctx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
 
-        this.ctx.fillStyle = COLORS.BEIGE;
-        this.ctx.fillRect(20, 20, this.WIDTH - 40, this.HEIGHT - 40);
+        const panelX = 20;
+        const panelY = 20;
+        const panelW = this.WIDTH - 40;
+        const panelH = this.HEIGHT - 40;
+        this.roundRect(this.ctx, panelX, panelY, panelW, panelH, 30, COLORS.BEIGE);
+        this.ctx.strokeStyle = COLORS.TURQUESA;
+        this.ctx.lineWidth = 3;
+        this.ctx.stroke();
 
         if (this.state === GameState.MENU) {
             this.drawMenu();

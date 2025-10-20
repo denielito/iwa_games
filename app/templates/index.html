@@ -4,28 +4,28 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 {% endblock %}
 
 {% block content %}
 
+<div class="contenedor-principal">
+  <div class="inventoteca">
+    <img src="{{ url_for('static', filename='assets/sprites/portada.png') }}" alt="Logo Ingenioteca">
+  </div>
 
-<div class="logo">
-  <h1>INGENIOTECA</h1>
-  <div class="subtitulo">El rincón de la mente creativa</div>
+  <div class="botones">
+    <button class="btn btn-jugar">
+      <div class="btn-text">Jugar</div>
+    </button>
+    <button class="btn btn-ingresar">
+      <div class="btn-text">Ingresar</div>
+    </button>
+    <button class="btn btn-salir">
+      <div class="btn-text">Salir</div>
+    </button>
+  </div>
 </div>
-
-<div class="botones">
-  <button class="btn btn-jugar">
-    <div class="btn-text">Jugar</div>
-  </button>
-  <button class="btn btn-ingresar">
-    <div class="btn-text">Ingresar</div>
-  </button>
-  <button class="btn btn-salir">
-    <div class="btn-text">Salir</div>
-  </button>
-</div>
-
 
 <!-- Modal -->
 <div class="modal" id="modal">
@@ -75,6 +75,10 @@
     </div>
   </div>
 </div>
+
+<footer class="firma-iwa">
+  IWA Ingeniería y Educación Apps – <span class="version">BETA version</span>
+</footer>
 
 <script src="{{ url_for('static', filename='js/index.js') }}"></script>
 

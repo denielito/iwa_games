@@ -16,75 +16,65 @@ body {
     background-color: #1ABC9C;
     overflow: hidden;
     position: relative;
+    background: url("/static/assets/sprites/fondo.png") no-repeat center center;
+    background-size: 100% 100%;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-.logo {
-    position: absolute;
-    top: 15%;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    z-index: 5;
+/* Contenedor principal responsivo */
+.contenedor-principal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 100%;
+    height: 100%;
+    padding: 20px;
+    gap: 30px;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
-
-.logo h1 {
-    font-family: 'Fredoka One', sans-serif;
-    font-size: clamp(2.5rem, 10vw, 5rem);
-    font-weight: 400;
-    color: #C8F526;
-    /* Verde limón */
-
-    /* Crea el borde turquesa fino */
-    -webkit-text-stroke: 3px #00CED1;
-
-    /* Crea el borde blanco grueso usando múltiples sombras */
-    text-shadow:
-        -6px -6px 0 #FFFFFF,
-        6px -6px 0 #FFFFFF,
-        -6px 6px 0 #FFFFFF,
-        6px 6px 0 #FFFFFF,
-        -6px 0 0 #FFFFFF,
-        6px 0 0 #FFFFFF,
-        0 6px 0 #FFFFFF,
-        0 -6px 0 #FFFFFF;
-
-    margin: 0;
-    background-color: transparent;
+.inventoteca {
+    width: 90%;
+    max-width: 600px;
+    z-index: 1;
 }
 
-
-.subtitulo {
-    color: white;
-    font-size: clamp(1rem, 3vw, 1.8rem);
-    margin-top: 10px;
+.inventoteca img {
+    width: 100%;
+    height: auto;
+    display: block;
+    pointer-events: none;
 }
 
 .botones {
-    position: absolute;
-    top: 40%;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
     z-index: 10;
     width: 100%;
+    max-width: 350px;
 }
 
 .btn {
-    display: block;
-    width: 290px;
-    height: 80px;
-    margin: 15px auto;
+    width: 100%;
+    max-width: 290px;
+    height: 70px;
     padding: 15px 0;
     border-radius: 40px;
-    font-size: clamp(1rem, 2vw, 1.4rem);
+    font-size: clamp(0.9rem, 2vw, 1.4rem);
     font-weight: bold;
     cursor: pointer;
     text-decoration: none;
     border: none;
     transition: transform 0.2s, box-shadow 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-jugar,
@@ -110,10 +100,29 @@ body {
 }
 
 .btn-text {
-    font-size: 40px;
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
     color: #1ABC9C;
 }
 
+.firma-iwa {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(12px, 2vw, 14px);
+    font-family: 'DejaVu Sans', sans-serif;
+    color: rgba(255, 255, 255, 0.85);
+    text-align: center;
+    letter-spacing: 0.5px;
+    z-index: 5;
+    user-select: none;
+    padding: 0 10px;
+}
+
+.firma-iwa .version {
+    font-weight: bold;
+    color: #FAD02E;
+}
 
 /* Modal */
 .modal {
@@ -127,6 +136,8 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
 }
 
 .modal.active {
@@ -136,10 +147,10 @@ body {
 .modal-content {
     background: white;
     border-radius: 15px;
-    width: 85%;
-    height: 0;
-    max-height: 70vh;
-    overflow: hidden;
+    width: 100%;
+    max-width: 85vw;
+    max-height: 90vh;
+    overflow-y: auto;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     animation: expandModal 0.5s ease forwards;
     position: relative;
@@ -147,16 +158,17 @@ body {
 
 @keyframes expandModal {
     from {
-        height: 0;
+        opacity: 0;
+        transform: scale(0.9);
     }
 
     to {
-        height: 70vh;
+        opacity: 1;
+        transform: scale(1);
     }
 }
 
-/* 🎮 Juegos */
-/* Contenedor principal centrado */
+/* Juegos */
 .games-container {
     display: flex;
     justify-content: center;
@@ -164,20 +176,27 @@ body {
     width: 100%;
     padding: 20px;
     box-sizing: border-box;
+    overflow-y: auto;
 }
 
-/* Cuadrícula de juegos centrada y adaptable */
 .games-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
     justify-content: center;
     width: 100%;
-    max-width: 900px; /* controla el ancho máximo */
+    max-width: 900px;
     margin: 0 auto;
+    padding: 10px;
 }
 
-/* Tarjeta individual */
+@media (min-width: 768px) {
+    .games-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 25px;
+    }
+}
+
 .game-card {
     background: #ffffff;
     border-radius: 15px;
@@ -192,13 +211,11 @@ body {
     justify-content: space-between;
 }
 
-/* Efecto hover */
 .game-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
-/* Imagen del juego */
 .game-image {
     width: 100%;
     height: 70%;
@@ -206,12 +223,11 @@ body {
     display: block;
 }
 
-/* Nombre del juego */
 .game-name {
     padding: 10px;
     text-align: center;
     font-weight: bold;
-    font-size: 0.95rem;
+    font-size: clamp(0.7rem, 2vw, 0.95rem);
     border-top: 1px solid #eee;
     height: 30%;
     display: flex;
@@ -219,7 +235,6 @@ body {
     justify-content: center;
 }
 
-/* Descripción flotante */
 .game-description-overlay {
     position: absolute;
     inset: 0;
@@ -233,7 +248,7 @@ body {
     opacity: 0;
     transition: opacity 0.3s ease;
     border-radius: 15px;
-    font-size: 0.85rem;
+    font-size: clamp(0.7rem, 1.5vw, 0.85rem);
     line-height: 1.4;
 }
 
@@ -241,15 +256,17 @@ body {
     opacity: 1;
 }
 
-
 /* Login */
 .login-container {
-    padding: 30px;
-    height: 100%;
+    padding: 30px 20px;
+    width: 100%;
+    max-width: 500px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    overflow-y: auto;
+    max-height: 90vh;
 }
 
 .tab-buttons {
@@ -258,6 +275,8 @@ body {
     background: #f0f0f0;
     border-radius: 10px;
     padding: 5px;
+    width: 100%;
+    gap: 5px;
 }
 
 .tab-btn {
@@ -267,7 +286,7 @@ body {
     background: transparent;
     cursor: pointer;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: clamp(0.85rem, 2vw, 1rem);
     border-radius: 8px;
     transition: all 0.3s ease;
     color: #666;
@@ -291,6 +310,7 @@ body {
 
 .input-group {
     margin-bottom: 20px;
+    width: 100%;
 }
 
 .input-group label {
@@ -298,6 +318,7 @@ body {
     margin-bottom: 8px;
     font-weight: bold;
     color: #333;
+    font-size: clamp(0.9rem, 2vw, 1rem);
 }
 
 .input-group input {
@@ -305,7 +326,7 @@ body {
     padding: 12px;
     border: 2px solid #ddd;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 2vw, 1rem);
     transition: border-color 0.3s ease;
 }
 
@@ -320,10 +341,11 @@ body {
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 1.1rem;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
+    width: 100%;
 }
 
 .submit-btn:hover {
@@ -343,8 +365,39 @@ body {
     font-size: 24px;
     cursor: pointer;
     transition: all 0.3s ease;
+    z-index: 1001;
 }
 
 .close-modal:hover {
     background: #da190b;
+}
+
+/* Media Queries */
+@media (max-width: 480px) {
+    body {
+        overflow-y: auto;
+    }
+
+    .contenedor-principal {
+        gap: 20px;
+        padding: 10px;
+    }
+
+    .botones {
+        max-width: 100%;
+    }
+
+    .btn {
+        height: 60px;
+        max-width: 100%;
+    }
+
+    .modal-content {
+        max-width: 95vw;
+        max-height: 85vh;
+    }
+
+    .login-container {
+        padding: 20px 15px;
+    }
 }

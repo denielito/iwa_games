@@ -42,6 +42,114 @@ tabButtons.forEach(btn => {
     });
 });
 
+// Manejo del formulario de Login y Registro
+document.addEventListener('DOMContentLoaded', () => {
+    // Evento para el botón de Login
+    const loginBtn = document.querySelector('#loginTab .submit-btn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await manejarLogin();
+        });
+    }
+
+    // Evento para el botón de Registro
+    const registerBtn = document.querySelector('#registerTab .submit-btn');
+    if (registerBtn) {
+        registerBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await manejarRegistro();
+        });
+    }
+});
+
+// Función para manejar el registro
+async function manejarRegistro() {
+    const nombre = document.getElementById('registerName').value.trim();
+    const apodo = document.getElementById('registerUser').value.trim();
+    const contraseña = document.getElementById('registerPassword').value;
+
+    if (!nombre || !apodo || !contraseña) {
+        alert('Por favor completa todos los campos');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/auth/registro', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nombre: nombre,
+                apodo: apodo,
+                contraseña: contraseña
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert('¡Registro exitoso! Ahora inicia sesión');
+            // Limpiar formulario
+            document.getElementById('registerName').value = '';
+            document.getElementById('registerUser').value = '';
+            document.getElementById('registerPassword').value = '';
+            // Cambiar a tab de login
+            document.querySelector('[data-tab="login"]').click();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión. Intenta de nuevo.');
+    }
+}
+
+// Función para manejar el login
+async function manejarLogin() {
+    const apodo = document.getElementById('loginUser').value.trim();
+    const contraseña = document.getElementById('loginPassword').value;
+
+    if (!apodo || !contraseña) {
+        alert('Por favor completa todos los campos');
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/auth/ingreso', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                apodo: apodo,
+                contraseña: contraseña
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            alert(`¡Bienvenido ${data.nombre}!`);
+            // Limpiar formulario
+            document.getElementById('loginUser').value = '';
+            document.getElementById('loginPassword').value = '';
+            // Cerrar modal
+            modal.classList.remove('active');
+            // Mostrar juegos después del login
+            setTimeout(() => {
+                document.querySelector('.btn-jugar').click();
+            }, 500);
+        } else {
+            alert('Error: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión. Intenta de nuevo.');
+    }
+}
+
 // Renderizar Juegos desde JSON
 async function renderGames() {
     try {
@@ -56,7 +164,6 @@ async function renderGames() {
             const gameCard = document.createElement('div');
             gameCard.className = 'game-card';
 
-            // Obtener el nombre del archivo sin extensión
             const nombreJuego = juego.html.replace('.html', '');
 
             gameCard.innerHTML = `
@@ -65,7 +172,6 @@ async function renderGames() {
                 <div class="game-description-overlay">${juego.descripcion}</div>
             `;
 
-            // Añadir evento de clic para navegar al juego
             gameCard.addEventListener('click', () => {
                 window.location.href = `/${nombreJuego}`;
             });

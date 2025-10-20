@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}iwa - Ecoinvernadero Monitor{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ecoinvernadero/monitor.css') }}">
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="main-container">
+    <!-- PANEL IZQUIERDO -->
+    <div class="left-panel" id="leftPanel">
+        <!-- Los botones hexágonos se generarán con JavaScript -->
+    </div>
+
+    <!-- PANEL DERECHO -->
+    <div class="right-panel">
+        <div class="container-rect" id="containerRect">
+            <!-- Los 6 rectángulos se generarán con JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE CONEXIÓN -->
+<div class="connection-modal" id="connectionModal">
+    <div class="connection-modal-content">
+        <h2>🔌 Conecta tu Arduino al puerto USB</h2>
+        <div class="connection-input-group">
+            <label for="comPort">COM</label>
+            <input type="number" id="comPort" placeholder="7" min="1" max="50">
+        </div>
+        <div class="connection-buttons">
+            <button class="connection-btn btn-confirm" id="btnConfirmConnection">Conectar</button>
+            <button class="connection-btn btn-cancel" id="btnCancelConnection">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <button class="modal-close" id="modalClose">X</button>
+        <div class="modal-header" id="modalHeader">Elige una maceta para tu</div>
+        <div class="modal-miniaturas" id="modalMiniaturas">
+            <!-- Se generarán 6 miniaturas -->
+        </div>
+    </div>
+</div>
+
+<!-- PANEL DE INFORMACIÓN -->
+<div class="info-panel" id="infoPanel">
+    <button class="close" id="infoClose">X</button>
+    <div class="info-panel-content" id="infoContent"></div>
+</div>
+
+<!-- INDICADOR DE CARGA -->
+<div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p>Conectando con Arduino...</p>
+</div>
+
+<script src="{{ url_for('static', filename='js/ecoinvernadero/monitor.js') }}"></script>
+
+{% endblock %}

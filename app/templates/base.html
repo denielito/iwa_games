@@ -1,13 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}IWA Gamificares{% endblock %}</title>
     <link rel="icon" href="{{ url_for('static', filename='assets/sprites/logo270x270.png') }}" type="image/png">
+    <style>
+        .logo {
+            position: absolute;
+            bottom: -45px;
+            right: 15px;
+            width: 80px;
+            height: 80px;
+            background-image: url('/static/assets/sprites/iwa.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+    </style>
     {% block styles %}{% endblock %}
 </head>
+
 <body>
     {% block content %}{% endblock %}
+    <div class="logo"></div>
 </body>
+
 </html>
