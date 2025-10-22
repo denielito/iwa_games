@@ -1,0 +1,1732 @@
+{% extends "base.html" %}
+
+{% block title %}Ecoinvernadero{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html,
+    body {
+        font-family: 'Arial', sans-serif;
+        overflow: hidden;
+        height: 100vh;
+        width: 100vw;
+        background-color: #1FC9BA;
+        overflow: hidden !important;
+    }
+
+    #root {
+        transform-origin: top left;
+        width: 1366px;
+        /* Tamaño base de diseño */
+        height: 651px;
+    }
+
+    .main-container {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+        background-color: #FFF7E6;
+        border-radius: 30px;
+        z-index: 1;
+        overflow: hidden;
+    }
+
+    .canvas-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    #fixedCanvas,
+    #connectionCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+    }
+
+    #fixedCanvas {
+        z-index: 5;
+        /* Líneas fijas detrás */
+    }
+
+    #connectionCanvas {
+        z-index: 10;
+        /* Líneas dinámicas encima */
+    }
+
+
+    .workspace {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        padding: 40px;
+        overflow: hidden !important;
+    }
+
+    .connection-steps {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 100vh;
+        background: #f7f7f7;
+        border-right: 10px solid #079382;
+        border-top-right-radius: 40px;
+        border-bottom-right-radius: 40px;
+        box-shadow: 10px 0 25px rgba(0, 0, 0, 0.3);
+        z-index: 3000;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .connection-steps.show {
+        display: flex;
+    }
+
+    #connectionSteps {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 100vh;
+        background: #f7f7f7;
+        border-right: 10px solid #079382;
+        border-top-right-radius: 40px;
+        border-bottom-right-radius: 40px;
+        box-shadow: 10px 0 25px rgba(0, 0, 0, 0.3);
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        z-index: 3000;
+    }
+
+    #connectionSteps.show {
+        display: flex;
+        animation: fadeIn 0.4s ease;
+    }
+
+    #connectionSteps .steps-content {
+        width: 85%;
+        height: 90%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+    }
+
+    #connectionSteps .steps-title {
+        font-size: 24px;
+        text-align: center;
+        color: #079382;
+        font-weight: bold;
+        letter-spacing: 1px;
+        margin-bottom: 15px;
+        margin-top: 25px;
+    }
+
+    #connectionSteps .steps-container {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: #333;
+        animation: fadeIn 0.4s ease;
+    }
+
+    #connectionSteps .steps-container img {
+        width: 180px;
+        margin-top: 20px;
+        border-radius: 12px;
+        border: 4px solid #079382;
+    }
+
+    #connectionSteps .steps-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+
+    #connectionSteps .step-btn {
+        background: #079382;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    #connectionSteps .step-btn:hover {
+        background: #0bbba4;
+    }
+
+
+    .steps-container {
+        text-align: center;
+        min-height: 220px;
+        transition: opacity 0.4s ease-in-out;
+    }
+
+    .steps-container.fade-in {
+        animation: fadeIn 0.4s ease-in-out;
+    }
+
+    .steps-panel.show {
+        display: flex;
+    }
+
+
+
+
+    .step {
+        display: none;
+    }
+
+    .step.active {
+        display: block;
+        animation: fadeIn 0.4s ease;
+    }
+
+
+
+    .step img {
+        max-width: 70%;
+        margin-top: 15px;
+        border-radius: 20px;
+        border: 4px solid #079382;
+    }
+
+    .step-buttons {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .step-buttons button {
+        background: #079382;
+        color: #FEDF59;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .step-buttons button:hover {
+        transform: scale(1.05);
+    }
+
+    .steps-buttons {
+        margin-top: 25px;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .step-btn {
+        background: #079382;
+        border: none;
+        padding: 10px 18px;
+        border-radius: 10px;
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.2s ease;
+    }
+
+    .step-btn:hover {
+        background: #0bbba4;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .confirm-cancel {
+        display: flex;
+        gap: 10px;
+    }
+
+    #confirmBtn,
+    #cancelBtn {
+        background: #FEDF59;
+        color: #079382;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+
+    .placed-component {
+        position: absolute;
+        transition: filter 0.3s ease, transform 0.3s ease;
+    }
+
+    .placed-component.grayscale {
+        filter: grayscale(100%);
+        cursor: default;
+    }
+
+    .placed-component.active {
+        filter: grayscale(0%);
+        cursor: pointer;
+    }
+
+    /* .placed-component.active:hover {
+        transform: scale(1.1);
+    } */
+
+    .placed-component img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        pointer-events: none;
+        filter: brightness(0) saturate(100%) invert(60%) sepia(0%) saturate(0%) hue-rotate(180deg) brightness(80%) contrast(90%);
+        opacity: 0.4;
+        /* se ven como figura tenue */
+        transition: filter 0.4s ease, opacity 0.4s ease;
+    }
+
+    .placed-component.active img {
+        filter: none;
+        opacity: 1;
+    }
+
+    /* Posiciones predefinidas para cada componente */
+    #workspace-arduino {
+        left: 73%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 250px;
+        height: 250px;
+    }
+
+    #workspace-ultrasonido {
+        right: 5%;
+        top: 5%;
+        width: 150px;
+        height: 150px;
+    }
+
+    #workspace-higrometro {
+        left: 75%;
+        top: 65%;
+        width: 250px;
+        height: 250px;
+    }
+
+    #workspace-bomba {
+        left: 5%;
+        top: 65%;
+        width: 170px;
+        height: 170px;
+    }
+
+    #workspace-rele {
+        left: 20%;
+        top: 40%;
+        width: 140px;
+        height: 140px;
+    }
+
+    #workspace-dht11 {
+        left: 30%;
+        top: 3%;
+        width: 155px;
+        height: 155px;
+    }
+
+    #workspace-protoboard {
+        left: 38%;
+        top: 40%;
+        width: 310px;
+        height: 250px;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 200px;
+        height: 100%;
+        background: #1FC9BA;
+        transition: transform 0.3s ease-in-out;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        padding: 30px 15px;
+        gap: 25px;
+    }
+
+    .sidebar.hidden {
+        transform: translateX(-200px);
+    }
+
+    .toggle-btn {
+        position: fixed;
+        left: 200px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 35px;
+        height: 50px;
+        background: #1FC9BA;
+        border: none;
+        border-radius: 0 10px 10px 0;
+        cursor: pointer;
+        z-index: 1001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: white;
+        transition: left 0.3s ease-in-out;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-btn:hover {
+        background: #17B3A6;
+    }
+
+    .toggle-btn.collapsed {
+        left: 0;
+    }
+
+    .components-grid {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+
+    .component-item {
+        position: relative;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+    }
+
+    .component-item.used {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .component-image {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        transition: all 0.3s ease;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+
+    .component-item:hover .component-image {
+        transform: scale(1.2);
+    }
+
+    .component-label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #079382;
+        color: #FEDF59;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: bold;
+        text-transform: uppercase;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+    }
+
+    .component-item:hover .component-label {
+        opacity: 1;
+    }
+
+    .buttons-container {
+        display: flex;
+        gap: 10px;
+        padding: 0 10px;
+        transform: rotate(-3deg);
+    }
+
+    .action-btn {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-limpiar {
+        background: #FEDF59;
+        color: #079382;
+    }
+
+    .btn-iniciar {
+        background: #079382;
+        color: #FEDF59;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px) rotate(1deg);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .action-btn:active {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    .components-grid::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .components-grid::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+    }
+
+    .components-grid::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+    }
+
+    .components-grid::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.5);
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            transform: translateX(-200px);
+        }
+
+        .sidebar.visible {
+            transform: translateX(0);
+        }
+
+        .toggle-btn {
+            left: 0;
+        }
+
+        .toggle-btn.visible {
+            left: 200px;
+        }
+
+        .main-container {
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border-radius: 20px;
+        }
+    }
+
+    .error-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        z-index: 2002;
+        min-width: 350px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        text-align: center;
+    }
+
+    .error-modal.show {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+
+    /* Panel de información */
+    .info-panel {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        z-index: 2000;
+        min-width: 400px;
+        max-width: 500px;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .info-panel.show {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .info-panel-header {
+        background: #079382;
+        color: #FEDF59;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .info-panel-header h2 {
+        margin: 0;
+        font-size: 20px;
+        text-transform: uppercase;
+    }
+
+    .close-btn {
+        background: transparent;
+        border: none;
+        color: #FEDF59;
+        font-size: 28px;
+        cursor: pointer;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: background 0.3s;
+    }
+
+    .close-btn:hover {
+        background: rgba(254, 223, 89, 0.2);
+    }
+
+    .info-panel-content {
+        padding: 25px;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease;
+    }
+
+    .info-panel.show .info-panel-content {
+        max-height: 400px;
+    }
+
+    .info-panel-content p {
+        margin: 10px 0;
+        line-height: 1.6;
+        color: #333;
+    }
+
+    .info-panel-content strong {
+        color: #079382;
+    }
+
+    /* Canvas para las líneas de conexión */
+    #connectionCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 10;
+    }
+
+    /* Modal de confirmación */
+    .confirm-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        z-index: 2001;
+        min-width: 350px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .confirm-modal.show {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .confirm-modal h3 {
+        margin: 0 0 15px 0;
+        color: #079382;
+    }
+
+    .confirm-modal-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .confirm-btn {
+        flex: 1;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .confirm-btn.yes {
+        background: #079382;
+        color: #FEDF59;
+    }
+
+    .confirm-btn.no {
+        background: #ccc;
+        color: #333;
+    }
+
+    .confirm-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+<style>
+    #resizeOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 3000;
+        color: white;
+        text-align: center;
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .resize-message {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid #FEDF59;
+        border-radius: 20px;
+        padding: 40px 60px;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        max-width: 90%;
+    }
+
+    .resize-message h2 {
+        font-size: 26px;
+        color: #FEDF59;
+        margin-bottom: 10px;
+    }
+
+    .resize-message p {
+        font-size: 18px;
+        color: #fff;
+    }
+</style>
+<div class="root">
+    <div id="resizeOverlay">
+        <div class="resize-message">
+            <h2>⚠️ Pantalla demasiado pequeña</h2>
+            <p>Amplía la ventana para continuar usando el simulador.</p>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="canvas-container">
+            <canvas id="fixedCanvas"></canvas>
+            <canvas id="connectionCanvas"></canvas>
+        </div>
+
+        <div class="workspace" id="workspace">
+            <!-- Componentes en el workspace -->
+            <div id="workspace-arduino" class="placed-component grayscale" data-component="arduino">
+                <img src="/static/assets/sprites/componentes/arduino_C.png" alt="Arduino"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%2300979D%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+            </div>
+
+            <div id="workspace-ultrasonido" class="placed-component grayscale" data-component="ultrasonido">
+                <img src="/static/assets/sprites/componentes/ultrasonido_C.png" alt="Ultrasonido"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%234A90E2%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+            </div>
+
+            <div id="workspace-higrometro" class="placed-component grayscale" data-component="higrometro">
+                <img src="/static/assets/sprites/componentes/higrometro_C.png" alt="Higrómetro"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23795548%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+            </div>
+
+            <div id="workspace-bomba" class="placed-component grayscale" data-component="bomba">
+                <img src="/static/assets/sprites/componentes/electrobomba_C.png" alt="Bomba"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%232196F3%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+            </div>
+
+            <div id="workspace-rele" class="placed-component grayscale" data-component="rele">
+                <img src="/static/assets/sprites/componentes/rele_C.png" alt="Relé"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23FF5722%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+            </div>
+
+            <div id="workspace-dht11" class="placed-component grayscale" data-component="dht11">
+                <img src="/static/assets/sprites/componentes/DTH11_C.png" alt="DHT11"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%234CAF50%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+            </div>
+
+            <div id="workspace-protoboard" class="placed-component grayscale" data-component="protoboard">
+                <img src="/static/assets/sprites/componentes/protoboard_C.png" alt="Protoboard"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23FFC107%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="components-grid">
+            <div class="component-item" data-component="arduino">
+                <img src="/static/assets/sprites/componentes/arduino_C.png" alt="Arduino" class="component-image"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%2300979D%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+                <div class="component-label">Arduino</div>
+            </div>
+
+            <div class="component-item" data-component="ultrasonido">
+                <img src="/static/assets/sprites/componentes/ultrasonido_C.png" alt="Ultrasonido"
+                    class="component-image"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%234A90E2%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+                <div class="component-label">Ultrasonido</div>
+            </div>
+
+            <div class="component-item" data-component="higrometro">
+                <img src="/static/assets/sprites/componentes/higrometro_C.png" alt="Higrómetro" class="component-image"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23795548%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+                <div class="component-label">Higrómetro</div>
+            </div>
+
+            <div class="component-item" data-component="bomba">
+                <img src="/static/assets/sprites/componentes/electrobomba_C.png" alt="Bomba" class="component-image"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%232196F3%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+                <div class="component-label">Bomba</div>
+            </div>
+
+            <div class="component-item" data-component="rele">
+                <img src="/static/assets/sprites/componentes/rele_C.png" alt="Relé" class="component-image"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23FF5722%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+                <div class="component-label">Relé</div>
+            </div>
+
+            <div class="component-item" data-component="dht11">
+                <img src="/static/assets/sprites/componentes/DTH11_C.png" alt="DHT11" class="component-image"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%234CAF50%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+                <div class="component-label">DHT11</div>
+            </div>
+
+            <div class="component-item" data-component="protoboard">
+                <img src="/static/assets/sprites/componentes/protoboard_C.png" alt="Protoboard" class="component-image"
+                    onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23FFC107%22 width=%22100%22 height=%22100%22/><circle cx=%2250%22 cy=%2250%22 r=%2230%22 fill=%22white%22/></svg>'">
+                <div class="component-label">Protoboard</div>
+            </div>
+        </div>
+
+        <div class="buttons-container">
+            <button class="action-btn btn-limpiar" onclick="limpiar()">Limpiar</button>
+            <button class="action-btn btn-iniciar" onclick="iniciarSimulacion()">Iniciar</button>
+        </div>
+    </div>
+
+    <button class="toggle-btn" id="toggleBtn" onclick="toggleSidebar()">
+        <span id="arrow">&#8249;</span>
+    </button>
+
+    <!-- Panel de información -->
+    <div class="info-panel" id="infoPanel">
+        <div class="info-panel-header">
+            <h2 id="infoPanelTitle">Componente</h2>
+            <button class="close-btn" onclick="closeInfoPanel()">&times;</button>
+        </div>
+        <div class="info-panel-content" id="infoPanelContent">
+            <p><strong>Descripción:</strong> Información del componente</p>
+        </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div class="confirm-modal" id="confirmModal">
+        <h3>Confirmar Conexión</h3>
+        <p id="confirmMessage">¿Desea conectar estos componentes?</p>
+        <div class="confirm-modal-buttons">
+            <button class="confirm-btn yes" onclick="confirmConnection(true)">Sí</button>
+            <button class="confirm-btn no" onclick="confirmConnection(false)">No</button>
+        </div>
+    </div>
+
+    <!-- Modal de conexión incorrecta -->
+    <div class="error-modal" id="errorModal">
+        <h3>❌ Conexión Incorrecta</h3>
+        <p id="errorMessage">Los componentes seleccionados no pueden conectarse.</p>
+        <button class="confirm-btn yes" onclick="closeErrorModal()">Continuar</button>
+    </div>
+
+
+    <!-- Panel de pasos para conexión -->
+    <!-- 🔹 PANEL DE PASOS PARA CONEXIÓN -->
+    <div id="connectionSteps" class="steps-panel">
+        <div class="steps-content">
+            <h2 id="stepsTitle" class="steps-title">Arduino — <span id="compNameTitle">Componente</span></h2>
+
+            <div id="stepsContainer" class="steps-container fade-in">
+                <div class="step active" id="step1">
+                    <p>En este paso aprenderás a conectar tu <strong>Arduino</strong> con el componente seleccionado.
+                    </p>
+                    <img id="img1" src="" alt="Paso 1">
+                </div>
+
+                <div class="step" id="step2">
+                    <p id="connectionText">Conecta los pines según las indicaciones del componente.</p>
+                    <img id="img2" src="" alt="Paso 2">
+                </div>
+
+                <div class="step" id="step3">
+                    <p>Verifica que las conexiones estén firmes antes de continuar.</p>
+                    <img id="img3" src="" alt="Paso 3">
+                </div>
+
+                <div class="step" id="step4">
+                    <p>¡Todo listo! Confirma para establecer la conexión definitiva.</p>
+                    <img id="img4" src="" alt="Paso 4">
+                </div>
+            </div>
+
+            <div class="steps-buttons">
+                <button id="prevBtn" class="step-btn hidden" onclick="prevStep()">Volver</button>
+                <button id="nextBtn" class="step-btn" onclick="nextStep()">Siguiente</button>
+                <button id="confirmBtn" class="step-btn hidden" onclick="confirmFinal()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 🔹 Tamaño base de diseño (ajusta según tu medida real)
+    const BASE_WIDTH = 1366;
+    const BASE_HEIGHT = 651;
+
+    // 🔹 Porcentaje mínimo antes de mostrar aviso (90%)
+    const MIN_RATIO = 0.97;
+    const overlay = document.getElementById('resizeOverlay');
+
+    function scaleInterface() {
+        const root = document.getElementById('root');
+        if (!root) return;
+
+        // Escala proporcional al tamaño actual
+        const scaleX = window.innerWidth / BASE_WIDTH;
+        const scaleY = window.innerHeight / BASE_HEIGHT;
+        const scale = Math.min(scaleX, scaleY);
+
+        root.style.transform = `scale(${scale})`;
+        root.style.transformOrigin = 'top left';
+    }
+
+    function checkWindowSize() {
+        const MIN_WIDTH = BASE_WIDTH * MIN_RATIO;
+        const MIN_HEIGHT = BASE_HEIGHT * MIN_RATIO;
+
+        if (window.innerWidth < MIN_WIDTH || window.innerHeight < MIN_HEIGHT) {
+            overlay.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        } else {
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+
+            // ⚡ Redibuja líneas solo si ya hay algo cargado
+
+            if (typeof restoreAllLines === 'function') {
+                restoreAllLines();
+            }
+        }
+    }
+
+    window.addEventListener('resize', () => {
+        scaleInterface();
+        checkWindowSize();
+    });
+
+    window.addEventListener('load', () => {
+        scaleInterface();
+        checkWindowSize();
+    });
+</script>
+
+
+<script>
+    console.log(`Ancho: ${window.innerWidth}px, Alto: ${window.innerHeight}px`);
+
+    let sidebarVisible = true;
+    const usedComponents = new Set();
+    const connections = [];
+    let isDrawingConnection = false;
+    let connectionStart = null;
+    let tempLine = null;
+
+    let savedConnections = [];
+    let savedFixedLines = [];
+    let savedComponentLines = [];
+
+    // ✅ Variables de estado del panel de pasos
+    let completedConnections = new Set();
+    let currentStep = 1;
+    let currentA = null;
+    let currentB = null;
+
+    const componentInfo = {
+        arduino: {
+            name: 'Arduino',
+            description: 'Placa de microcontrolador de código abierto basada en hardware y software fáciles de usar.',
+            specs: 'ATmega328P, 14 pines digitales I/O, 6 entradas analógicas, 16 MHz'
+        },
+        ultrasonido: {
+            name: 'Sensor Ultrasónico',
+            description: 'Mide distancias mediante ondas ultrasónicas.',
+            specs: 'Rango: 2cm - 400cm, Precisión: 3mm'
+        },
+        higrometro: {
+            name: 'Higrómetro',
+            description: 'Sensor de humedad del suelo para monitoreo de plantas.',
+            specs: 'Voltaje: 3.3V-5V, Salida analógica'
+        },
+        bomba: {
+            name: 'Bomba de Agua',
+            description: 'Bomba sumergible para sistema de riego automatizado.',
+            specs: 'Voltaje: 3V-6V DC, Flujo: 80-120 L/H'
+        },
+        rele: {
+            name: 'Módulo Relé',
+            description: 'Interruptor controlado electrónicamente para cargas de alta potencia.',
+            specs: '5V DC, 10A 250VAC / 10A 30VDC'
+        },
+        dht11: {
+            name: 'DHT11',
+            description: 'Sensor de temperatura y humedad ambiental.',
+            specs: 'Temperatura: 0-50°C ±2°C, Humedad: 20-90% ±5%'
+        },
+        protoboard: {
+            name: 'Protoboard',
+            description: 'Placa de pruebas para prototipos sin soldadura.',
+            specs: '830 puntos de conexión, compatible con cables AWG 22-29'
+        }
+    };
+
+    const canvasFixed = document.getElementById('fixedCanvas');
+    const ctxFixed = canvasFixed.getContext('2d');
+    const canvas = document.getElementById('connectionCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function saveAllLines() {
+        savedConnections = [];
+
+        connections.forEach(conn => {
+            const startPos = getComponentCenter(conn.start);
+            const endPos = getComponentCenter(conn.end);
+            savedConnections.push({
+                color: '#079382',
+                width: 3,
+                path: [
+                    { x: (startPos.x / canvas.width) * 100, y: (startPos.y / canvas.height) * 100 },
+                    { x: (endPos.x / canvas.width) * 100, y: (endPos.y / canvas.height) * 100 }
+                ]
+            });
+        });
+
+        if (jsonData && jsonData.connect_5v_gnd) {
+            savedFixedLines = jsonData.connect_5v_gnd.map(line => ({ ...line }));
+        }
+    }
+
+    function restoreAllLines() {
+        const totalComponents = document.querySelectorAll('.placed-component').length;
+        const activeComponents = document.querySelectorAll('.placed-component.active').length;
+        const allActive = activeComponents === totalComponents;
+
+        if (savedConnections.length > 0) {
+            savedConnections.forEach(line => {
+                const points = line.path.map(p => ({
+                    x: (parseFloat(p.x) / 100) * canvas.width,
+                    y: (parseFloat(p.y) / 100) * canvas.height
+                }));
+
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                ctx.strokeStyle = line.color;
+                ctx.lineWidth = line.width;
+                ctx.stroke();
+            });
+        }
+
+        if (allActive && savedFixedLines.length > 0) {
+            savedFixedLines.forEach(line => {
+                const points = line.path.map(p => ({
+                    x: (parseFloat(p.x) / 100) * canvasFixed.width,
+                    y: (parseFloat(p.y) / 100) * canvasFixed.height
+                }));
+
+                ctxFixed.beginPath();
+                ctxFixed.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    ctxFixed.lineTo(points[i].x, points[i].y);
+                }
+                ctxFixed.strokeStyle = line.color;
+                ctxFixed.lineWidth = line.width;
+                ctxFixed.stroke();
+            });
+            console.log("🔋 Líneas fijas restauradas (todos activos).");
+        } else if (!allActive) {
+            console.log("⏸️ No se restauran las líneas fijas: aún hay componentes grises.");
+        }
+
+        if (savedComponentLines.length > 0) {
+            savedComponentLines.forEach(line => {
+                const points = line.path.map(p => ({
+                    x: (parseFloat(p.x) / 100) * canvasFixed.width,
+                    y: (parseFloat(p.y) / 100) * canvasFixed.height
+                }));
+
+                ctxFixed.beginPath();
+                ctxFixed.moveTo(points[0].x, points[0].y);
+                for (let i = 1; i < points.length; i++) {
+                    ctxFixed.lineTo(points[i].x, points[i].y);
+                }
+                ctxFixed.strokeStyle = line.color;
+                ctxFixed.lineWidth = line.width;
+                ctxFixed.stroke();
+            });
+
+            console.log("✅ Líneas de connect_components restauradas tras resize");
+        }
+    }
+
+    let jsonData = null;
+
+    fetch('/static/assets/data/connections.json')
+        .then(response => response.json())
+        .then(data => {
+            jsonData = data;
+            correctConnections = data.correct_connections || [];
+            console.log("Conexiones cargadas:", jsonData);
+        })
+        .catch(err => console.error("Error cargando connections.json:", err));
+
+    function drawFixedConnections() {
+        if (!jsonData || !jsonData.connect_5v_gnd) return;
+
+        const totalComponents = document.querySelectorAll('.placed-component').length;
+        const activeComponents = document.querySelectorAll('.placed-component.active').length;
+        if (activeComponents < totalComponents) {
+            console.log("⏸️ Aún hay componentes grises, no se dibujan las líneas de poder.");
+            return;
+        }
+
+        if (drawFixedConnections.hasDrawn) return;
+        drawFixedConnections.hasDrawn = true;
+
+        jsonData.connect_5v_gnd.forEach(line => {
+            const points = line.path.map(p => ({
+                x: (parseFloat(p.x) / 100) * canvasFixed.width,
+                y: (parseFloat(p.y) / 100) * canvasFixed.height
+            }));
+
+            ctxFixed.beginPath();
+            ctxFixed.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                ctxFixed.lineTo(points[i].x, points[i].y);
+            }
+            ctxFixed.strokeStyle = line.color;
+            ctxFixed.lineWidth = line.width;
+            ctxFixed.stroke();
+        });
+
+        console.log("🔋 Líneas de alimentación dibujadas (5V y GND)");
+    }
+
+    function resizeCanvas() {
+        saveAllLines();
+
+        const container = document.querySelector('.main-container');
+        canvas.width = container.offsetWidth;
+        canvas.height = container.offsetHeight;
+        canvasFixed.width = container.offsetWidth;
+        canvasFixed.height = container.offsetHeight;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctxFixed.clearRect(0, 0, canvasFixed.width, canvasFixed.height);
+
+        restoreAllLines();
+
+        console.log("🎨 Canvas redimensionado y conexiones restauradas");
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('load', resizeCanvas);
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const arrow = document.getElementById('arrow');
+
+        sidebarVisible = !sidebarVisible;
+
+        if (sidebarVisible) {
+            sidebar.classList.remove('hidden');
+            toggleBtn.classList.remove('collapsed');
+            arrow.innerHTML = '&#8249;';
+        } else {
+            sidebar.classList.add('hidden');
+            toggleBtn.classList.add('collapsed');
+            arrow.innerHTML = '&#8250;';
+        }
+    }
+
+    function limpiar() {
+        usedComponents.clear();
+        document.querySelectorAll('.component-item').forEach(i => i.classList.remove('used'));
+        document.querySelectorAll('.placed-component').forEach(c => {
+            c.classList.remove('active');
+            c.classList.add('grayscale');
+        });
+
+        connections.length = 0;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctxFixed.clearRect(0, 0, canvasFixed.width, canvasFixed.height);
+
+        tempLine = null;
+        connectionStart = null;
+        isDrawingConnection = false;
+        drawFixedConnections.hasDrawn = false;
+
+        savedComponentLines = [];
+        completedConnections.clear();
+
+        console.log("🧹 Simulación limpiada completamente");
+    }
+
+    function iniciarSimulacion() {
+        const activeCount = document.querySelectorAll('.placed-component.active').length;
+        if (activeCount === 0) {
+            alert('Por favor, activa al menos un componente antes de iniciar la simulación');
+            return;
+        }
+        console.log('Iniciando simulación con ' + activeCount + ' componentes');
+        alert('Simulación iniciada con ' + activeCount + ' componentes');
+    }
+
+    function checkScreenSize() {
+        if (window.innerWidth <= 768 && sidebarVisible) {
+            toggleSidebar();
+        }
+    }
+
+    window.addEventListener('resize', checkScreenSize);
+    window.addEventListener('load', checkScreenSize);
+
+    document.querySelectorAll('.component-item').forEach(item => {
+        item.addEventListener('click', function () {
+            const componentName = this.getAttribute('data-component');
+
+            if (usedComponents.has(componentName)) {
+                return;
+            }
+
+            usedComponents.add(componentName);
+            this.classList.add('used');
+
+            const workspaceComponent = document.getElementById('workspace-' + componentName);
+            if (workspaceComponent) {
+                workspaceComponent.classList.remove('grayscale');
+                workspaceComponent.classList.add('active');
+            }
+            if (sidebarVisible) {
+                toggleSidebar();
+            }
+            checkAllComponentsActive();
+
+            console.log('Componente activado:', componentName);
+        });
+    });
+
+    document.getElementById('workspace').addEventListener('click', function (e) {
+        if (isDrawingConnection && !e.target.closest('.placed-component')) {
+            isDrawingConnection = false;
+            if (connectionStart) {
+                connectionStart.style.border = '';
+                connectionStart = null;
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            redrawConnections();
+            tempLine = null;
+            console.log("❌ Conexión cancelada (clic fuera del componente)");
+        }
+    });
+
+    document.querySelectorAll('.placed-component').forEach(comp => {
+        comp.addEventListener('contextmenu', e => {
+            if (isDrawingConnection) {
+                e.preventDefault();
+                isDrawingConnection = false;
+                if (connectionStart) {
+                    connectionStart.style.border = '';
+                    connectionStart = null;
+                }
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                redrawConnections();
+                tempLine = null;
+                console.log("❌ Conexión cancelada (clic derecho)");
+            }
+        });
+    });
+
+    function checkAllComponentsActive() {
+        const totalComponents = document.querySelectorAll('.placed-component').length;
+        const activeComponents = document.querySelectorAll('.placed-component.active').length;
+
+        if (activeComponents === totalComponents) {
+            console.log("✅ Todos los componentes están activos. Se dibujan líneas de poder.");
+            drawFixedConnections();
+        } else {
+            console.log(`🕓 Faltan ${totalComponents - activeComponents} componentes por activar.`);
+        }
+    }
+
+    document.querySelectorAll('.placed-component').forEach(component => {
+        component.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+
+            if (!this.classList.contains('active')) return;
+
+            const componentName = this.getAttribute('data-component');
+            showInfoPanel(componentName);
+        });
+
+        component.addEventListener('click', function (e) {
+            if (!this.classList.contains('active')) return;
+
+            const allActive = document.querySelectorAll('.placed-component.active').length === 7;
+            if (!allActive) return;
+
+            if (!isDrawingConnection) {
+                isDrawingConnection = true;
+                connectionStart = this;
+                this.style.border = '3px solid #079382';
+            } else {
+                if (this !== connectionStart) {
+                    const componentEnd = this;
+                    drawTempLine(connectionStart, componentEnd);
+                    showConfirmModal(connectionStart, componentEnd);
+                }
+                connectionStart.style.border = '';
+                connectionStart = null;
+                isDrawingConnection = false;
+            }
+        });
+    });
+
+    function showInfoPanel(componentName) {
+        const panel = document.getElementById('infoPanel');
+        const title = document.getElementById('infoPanelTitle');
+        const content = document.getElementById('infoPanelContent');
+
+        const info = componentInfo[componentName];
+
+        title.textContent = info.name;
+        content.innerHTML = `
+                <p><strong>Descripción:</strong> ${info.description}</p>
+                <p><strong>Especificaciones:</strong> ${info.specs}</p>
+            `;
+
+        panel.classList.add('show');
+    }
+
+    function closeInfoPanel() {
+        document.getElementById('infoPanel').classList.remove('show');
+    }
+
+    function getComponentCenter(component) {
+        const rect = component.getBoundingClientRect();
+        const containerRect = document.querySelector('.main-container').getBoundingClientRect();
+        return {
+            x: rect.left + rect.width / 2 - containerRect.left,
+            y: rect.top + rect.height / 2 - containerRect.top
+        };
+    }
+
+    function drawTempLine(start, end) {
+        const startPos = getComponentCenter(start);
+        const endPos = getComponentCenter(end);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        redrawConnections();
+
+        ctx.beginPath();
+        ctx.moveTo(startPos.x, startPos.y);
+        ctx.lineTo(endPos.x, endPos.y);
+        ctx.strokeStyle = '#FEDF59';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([10, 5]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        tempLine = { start, end };
+    }
+
+    function drawComponentConnectionFixed(connData) {
+        const drawSinglePath = (path) => {
+            const points = path.map(p => ({
+                x: (parseFloat(p.x) / 100) * canvasFixed.width,
+                y: (parseFloat(p.y) / 100) * canvasFixed.height
+            }));
+
+            ctxFixed.beginPath();
+            ctxFixed.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                ctxFixed.lineTo(points[i].x, points[i].y);
+            }
+            ctxFixed.strokeStyle = connData.color || "#079382";
+            ctxFixed.lineWidth = connData.width || 3;
+            ctxFixed.stroke();
+        };
+
+        if (connData.paths) {
+            connData.paths.forEach(drawSinglePath);
+        } else if (connData.path) {
+            drawSinglePath(connData.path);
+        }
+    }
+
+    function showConfirmModal(start, end) {
+        const modal = document.getElementById('confirmModal');
+        const message = document.getElementById('confirmMessage');
+
+        const startName = componentInfo[start.getAttribute('data-component')].name;
+        const endName = componentInfo[end.getAttribute('data-component')].name;
+
+        message.textContent = `¿Desea conectar ${startName} con ${endName}?`;
+        modal.classList.add('show');
+    }
+
+    let correctConnections = [];
+
+    fetch('/static/assets/data/connections.json')
+        .then(response => response.json())
+        .then(data => {
+            correctConnections = data.correct_connections || [];
+            console.log('Conexiones válidas cargadas:', correctConnections);
+        })
+        .catch(err => console.error('Error cargando conexiones.json:', err));
+
+    function confirmConnection(confirmed) {
+        const modal = document.getElementById('confirmModal');
+        modal.classList.remove('show');
+
+        if (confirmed && tempLine) {
+            const start = tempLine.start.getAttribute('data-component');
+            const end = tempLine.end.getAttribute('data-component');
+
+            const isCorrect =
+                correctConnections.some(
+                    conn =>
+                        (conn[0] === start && conn[1] === end) ||
+                        (conn[0] === end && conn[1] === start)
+                );
+
+            if (isCorrect) {
+                openSteps(tempLine.start, tempLine.end);
+            } else {
+                showErrorModal(`La conexión entre ${start} y ${end} no es válida.`);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                redrawConnections();
+                tempLine = null;
+            }
+        } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            redrawConnections();
+            tempLine = null;
+        }
+    }
+
+    function redrawConnections() {
+        connections.forEach(conn => {
+            const startPos = getComponentCenter(conn.start);
+            const endPos = getComponentCenter(conn.end);
+
+            ctx.beginPath();
+            ctx.moveTo(startPos.x, startPos.y);
+            ctx.lineTo(endPos.x, endPos.y);
+            ctx.strokeStyle = '#079382';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        });
+    }
+
+    document.getElementById('infoPanel').addEventListener('click', function (e) {
+        if (e.target === this) {
+            closeInfoPanel();
+        }
+    });
+
+    function openSteps(start, end) {
+        currentA = start.getAttribute('data-component');
+        currentB = end.getAttribute('data-component');
+
+        // ✅ Verificar que todos los elementos existen
+        const stepsPanel = document.getElementById('connectionSteps');
+        const compNameTitle = document.getElementById('compNameTitle');
+        const connectionText = document.getElementById('connectionText');
+        
+        if (!stepsPanel || !compNameTitle || !connectionText) {
+            console.error("❌ Error: Elementos del panel no encontrados");
+            return;
+        }
+
+        // Determinar paso inicial
+        currentStep = completedConnections.size === 0 ? 1 : 2;
+
+        console.log(`🔄 Abriendo pasos. Conexiones: ${completedConnections.size}, Paso: ${currentStep}`);
+
+        // Actualizar título
+        compNameTitle.textContent = componentInfo[currentB].name;
+
+        // Actualizar imágenes
+        const img1 = document.getElementById('img1');
+        const img2 = document.getElementById('img2');
+        const img3 = document.getElementById('img3');
+        const img4 = document.getElementById('img4');
+        
+        if (img1) img1.src = `/static/assets/sprites/componentes/${currentA}/1.png`;
+        if (img2) img2.src = `/static/assets/sprites/componentes/${currentA}/2.png`;
+        if (img3) img3.src = `/static/assets/sprites/componentes/${currentA}/3.png`;
+        if (img4) img4.src = `/static/assets/sprites/componentes/${currentA}/3.png`;
+
+        // Actualizar texto de conexión
+        let connectionMessage = "";
+        switch (currentB) {
+            case "dht11":
+                connectionMessage = "Data en el pin 9";
+                break;
+            case "ultrasonido":
+                connectionMessage = "Echo en el pin 10, Trigger en el pin 11";
+                break;
+            case "bomba":
+                connectionMessage = "Conéctala en el pin 8";
+                break;
+            case "higrometro":
+                connectionMessage = "Conéctalo en el pin A0";
+                break;
+            case "rele":
+                connectionMessage = "Conéctalo en el pin 7";
+                break;
+            default:
+                connectionMessage = "Conecta los pines según las indicaciones.";
+        }
+        connectionText.textContent = connectionMessage;
+
+        // ✅ Activar el paso correcto
+        const allSteps = document.querySelectorAll('.step');
+        allSteps.forEach((step, index) => {
+            if (index + 1 === currentStep) {
+                step.classList.add('active');
+            } else {
+                step.classList.remove('active');
+            }
+        });
+
+        // Actualizar botones
+        updateStepButtons();
+
+        // Mostrar panel
+        stepsPanel.classList.add('show');
+
+        console.log(`✅ Panel abierto en paso ${currentStep}`);
+    }
+
+    function closeSteps() {
+        document.getElementById('connectionSteps').classList.remove('show');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        redrawConnections();
+        tempLine = null;
+    }
+
+    function showErrorModal(msg) {
+        const modal = document.getElementById('errorModal');
+        document.getElementById('errorMessage').textContent = msg;
+        modal.classList.add('show');
+    }
+
+    function closeErrorModal() {
+        document.getElementById('errorModal').classList.remove('show');
+    }
+
+    function nextStep() {
+        if (currentStep < 4) {
+            currentStep++;
+            updateSteps();
+        }
+    }
+
+    function prevStep() {
+        if (currentStep > 1) {
+            currentStep--;
+            updateSteps();
+        }
+    }
+
+    function updateSteps() {
+        document.querySelectorAll('.step').forEach((step, index) => {
+            step.classList.toggle('active', index + 1 === currentStep);
+        });
+
+        const container = document.getElementById('stepsContainer');
+        if (container) {
+            container.classList.remove('fade-in');
+            void container.offsetWidth;
+            container.classList.add('fade-in');
+        }
+
+        updateStepButtons();
+
+        console.log(`📍 Paso actualizado a: ${currentStep}`);
+    }
+
+    function updateStepButtons() {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+
+        if (prevBtn) prevBtn.classList.toggle('hidden', currentStep === 1);
+        if (nextBtn) nextBtn.classList.toggle('hidden', currentStep === 4);
+        if (confirmBtn) confirmBtn.classList.toggle('hidden', currentStep !== 4);
+    }
+
+    function drawComponentConnection(connData) {
+        const points = connData.path.map(p => ({
+            x: (parseFloat(p.x) / 100) * canvas.width,
+            y: (parseFloat(p.y) / 100) * canvas.height
+        }));
+
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.strokeStyle = connData.color || "#079382";
+        ctx.lineWidth = connData.width || 3;
+        ctx.stroke();
+    }
+
+    function confirmFinal() {
+        if (!tempLine || !jsonData) {
+            console.error("❌ Error: tempLine o jsonData no disponible");
+            return;
+        }
+
+        const compA = currentA;
+        const compB = currentB;
+        const key1 = `${compA}-${compB}`;
+        const key2 = `${compB}-${compA}`;
+
+        console.log(`🔍 Buscando conexión: ${key1} o ${key2}`);
+
+        const connData = jsonData.connect_components[key1] || jsonData.connect_components[key2];
+
+        if (connData) {
+            drawComponentConnectionFixed(connData);
+
+            const keyToSave = key1 in jsonData.connect_components ? key1 : key2;
+            completedConnections.add(keyToSave);
+
+            savedComponentLines.push({ ...connData });
+
+            console.log(`✅ Conexión completada: ${keyToSave}`);
+            console.log(`📊 Total conexiones: ${completedConnections.size}/${jsonData.correct_connections.length}`);
+        } else {
+            console.warn("⚠️ No se encontró la conexión en connect_components:", key1, key2);
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        redrawConnections();
+        drawFixedConnections();
+
+        tempLine = null;
+
+        const stepsPanel = document.getElementById('connectionSteps');
+        if (stepsPanel) {
+            stepsPanel.classList.remove('show');
+        }
+
+        // ✅ Solo resetear las variables de componente
+        currentA = null;
+        currentB = null;
+
+        if (completedConnections.size === jsonData.correct_connections.length) {
+            console.log("🎉 ¡Todas las conexiones correctas han sido completadas!");
+            alert("🎉 ¡Felicitaciones! Has completado todas las conexiones correctamente.");
+        }
+    }
+</script>
+
+
+{% endblock %}

@@ -22,21 +22,49 @@ html, body {
     height: 100%;
     gap: 0;
     padding: 0;
+    position: relative;
 }
 
+/* ==================== BOTÓN TOGGLE MÓVIL ====================*/
+.mobile-toggle {
+    display: none;
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 3000;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.mobile-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.mobile-toggle:active {
+    transform: scale(0.95);
+}
 
 .left-panel {
     background-color: #FFE082;
-    border-radius: 30px 0 0 30px;
+    border-radius: 0 30px 30px 0;
     width: 25%;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;   /* ❌ sin scroll */
-    padding: 20px;
+    overflow: hidden;
+    padding: 5px;
+    transition: transform 0.3s ease;
 }
-
 
 .right-panel {
     flex: 1;
@@ -45,17 +73,13 @@ html, body {
     display: flex;
     flex-direction: column;
     padding: 20px;
-    overflow: hidden;   /* ❌ sin scroll */
+    overflow: hidden;
 }
 
-
-
-
 /* ==================== HEXÁGONOS ====================*/
-/* ==================== HEXÁGONOS MEJORADOS ====================*/
 .hexagon-btn {
-    width: 130px; /* Aumentado de 110px */
-    height: 115px; /* Aumentado de 95px */
+    width: 130px;
+    height: 115px;
     cursor: pointer;
     position: relative;
     display: flex;
@@ -106,8 +130,8 @@ html, body {
 }
 
 .hexagon-half-top, .hexagon-half-bottom {
-    width: 105px; /* Aumentado de 90px */
-    height: 58px; /* Aumentado de 50px */
+    width: 105px;
+    height: 58px;
     cursor: pointer;
     position: relative;
     display: flex;
@@ -123,7 +147,7 @@ html, body {
     transform: translateY(0);
     font-weight: bold;
     color: white;
-    font-size: 13px; /* Aumentado ligeramente */
+    font-size: 13px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
@@ -155,7 +179,7 @@ html, body {
     clip-path: polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%);
 }
 
-/* Colores hexágonos con mejor contraste */
+/* Colores hexágonos */
 .verde-azulado {
     --color1: #2D6A4F;
     --color2: #40916C;
@@ -181,97 +205,28 @@ html, body {
         inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
 
-/* Ajustar el grid para los botones más grandes */
 .plants-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: repeat(5, 1fr);
     height: 100%;
     width: 100%;
-    gap: 10px; /* Aumentado el gap para botones más grandes */
-    padding: 5px; /* Aumentado el padding */
+    gap: 2px;
+    padding: 1px 30px 50px 30px;
     align-items: center;
     justify-items: center;
 }
 
-/* Ajustar panel izquierdo para acomodar botones más grandes */
-.left-panel {
-    background-color: #FFE082;
-    border-radius: 30px 0 0 30px;
-    width: 25%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    padding: 5px; /* Aumentado el padding */
-}
-
-
-/* Colores hexágonos */
-.verde-azulado {
-    --color1: #2D6A4F;
-    --color2: #40916C;
-}
-
-.verde-limon {
-    --color1: #52B788;
-    --color2: #74C69D;
-}
-
-.verde-petroleo {
-    --color1: #1B4332;
-    --color2: #2D6A4F;
-}
-
-.blanco {
-    --color1: #F0F0F0;
-    --color2: #E8E8E8;
-}
-
-.plants-grid {
-    display: flex;
-    flex-direction: column;       /* disposición vertical */
-    flex-wrap: wrap;              /* permite que pase a la siguiente columna */
-    align-content: center;        /* centra el grupo horizontalmente */
-    justify-content: space-evenly;/* reparte verticalmente */
-    height: 100%;                 /* altura igual a la columna */
-    width: 100%;
-    gap: 15px;                    /* separación entre botones */
-}
-
-
-/* Botones especiales */
-.special-btn {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s;
-    margin-top: 10px;
-}
-
-.limpiar-btn {
-    background-color: #FFB74D;
-    color: white;
-}
-
-.limpiar-btn:hover {
-    background-color: #FFA726;
-    transform: translateY(-2px);
-}
-
-.conectar-btn {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.conectar-btn:hover {
-    background-color: #45a049;
-    transform: translateY(-2px);
-}
+.plants-grid button:nth-child(1) { grid-column: 1; grid-row: 1; }
+.plants-grid button:nth-child(2) { grid-column: 2; grid-row: 1; }
+.plants-grid button:nth-child(3) { grid-column: 1; grid-row: 2; }
+.plants-grid button:nth-child(4) { grid-column: 2; grid-row: 2; }
+.plants-grid button:nth-child(5) { grid-column: 1; grid-row: 3; }
+.plants-grid button:nth-child(6) { grid-column: 2; grid-row: 3; }
+.plants-grid button:nth-child(7) { grid-column: 1; grid-row: 4; }
+.plants-grid button:nth-child(8) { grid-column: 2; grid-row: 4; }
+.plants-grid button:nth-child(9) { grid-column: 1; grid-row: 5; }
+.plants-grid button:nth-child(10) { grid-column: 2; grid-row: 5; }
 
 /* Contenedor de rectángulos */
 .container-rect {
@@ -562,84 +517,200 @@ html, body {
     margin: 0 auto 15px;
 }
 
-/* ==================== PLANTS GRID - DISPOSICIÓN ZIGZAG ==================== */
-.plants-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* 2 columnas */
-    grid-template-rows: repeat(5, 1fr); /* 5 filas de igual altura */
-    height: 100%;
-    width: 100%;
-    gap: 2px;
-    padding: 20px;
-    align-items: center;
-    justify-items: center;
-}
-
-/* Posicionamiento específico para cada botón en zigzag */
-/* Fila 1 */
-.plants-grid button:nth-child(1) { /* Flor */
-    grid-column: 1;
-    grid-row: 1;
-}
-
-.plants-grid button:nth-child(2) { /* Limpiar */
-    grid-column: 2;
-    grid-row: 1;
-}
-
-/* Fila 2 */
-.plants-grid button:nth-child(3) { /* Tomate */
-    grid-column: 1;
-    grid-row: 2;
-}
-
-.plants-grid button:nth-child(4) { /* Cilantro */
-    grid-column: 2;
-    grid-row: 2;
-}
-
-/* Fila 3 */
-.plants-grid button:nth-child(5) { /* Ajo */
-    grid-column: 1;
-    grid-row: 3;
-}
-
-.plants-grid button:nth-child(6) { /* Col */
-    grid-column: 2;
-    grid-row: 3;
-}
-
-/* Fila 4 */
-.plants-grid button:nth-child(7) { /* Menta */
-    grid-column: 1;
-    grid-row: 4;
-}
-
-.plants-grid button:nth-child(8) { /* Fresa */
-    grid-column: 2;
-    grid-row: 4;
-}
-
-/* Fila 5 */
-.plants-grid button:nth-child(9) { /* Pimiento */
-    grid-column: 1;
-    grid-row: 5;
-}
-
-.plants-grid button:nth-child(10) { /* Conectar */
-    grid-column: 2;
-    grid-row: 5;
-}
-
-/* Ajustar tamaño de botones para que quepan perfectamente */
-
-
 @keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 
-    100% {
-        transform: rotate(360deg);
+/* ==================== RESPONSIVE DESIGN ====================*/
+
+/* Tablets y pantallas medianas */
+@media (max-width: 1024px) {
+    html, body {
+        padding: 10px;
+    }
+    
+    .hexagon-btn {
+        width: 100px;
+        height: 90px;
+    }
+    
+    .hexagon-half-top, .hexagon-half-bottom {
+        width: 85px;
+        height: 48px;
+        font-size: 11px;
+    }
+    
+    .container-rect {
+        padding: 20px;
+        gap: 12px;
+    }
+}
+
+/* Tablets pequeñas */
+@media (max-width: 768px) {
+    .main-container {
+        border-radius: 20px;
+    }
+    
+    .left-panel {
+        width: 30%;
+        padding: 3px;
+        border-radius: 20px 0 0 20px;
+    }
+    
+    .right-panel {
+        padding: 15px;
+        border-radius: 0 20px 20px 0;
+    }
+    
+    .plants-grid {
+        padding: 10px;
+        gap: 5px;
+    }
+    
+    .hexagon-btn {
+        width: 80px;
+        height: 70px;
+    }
+    
+    .hexagon-half-top, .hexagon-half-bottom {
+        width: 70px;
+        height: 40px;
+        font-size: 10px;
+    }
+    
+    .container-rect {
+        padding: 15px;
+        gap: 10px;
+    }
+}
+
+/* Móviles - Panel lateral oculto con botón toggle */
+@media (max-width: 640px) {
+    html, body {
+        padding: 0;
+    }
+    
+    .mobile-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .main-container {
+        border-radius: 0;
+        padding: 0;
+    }
+    
+    .left-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100%;
+        z-index: 2500;
+        border-radius: 0 20px 20px 0;
+        transform: translateX(-100%);
+        box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
+        padding: 10px;
+    }
+    
+    .left-panel.active {
+        transform: translateX(0);
+    }
+    
+    .right-panel {
+        width: 100%;
+        border-radius: 0;
+        padding: 15px;
+        padding-top: 80px;
+    }
+    
+    .plants-grid {
+        padding: 15px;
+        gap: 8px;
+    }
+    
+    .hexagon-btn {
+        width: 90px;
+        height: 80px;
+    }
+    
+    .hexagon-half-top, .hexagon-half-bottom {
+        width: 75px;
+        height: 42px;
+        font-size: 11px;
+    }
+    
+    /* Grid de rectángulos: 3 filas x 2 columnas */
+    .container-rect {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        padding: 15px;
+        gap: 12px;
+    }
+    
+    /* Overlay oscuro cuando el panel está abierto */
+    .mobile-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+    }
+    
+    .mobile-overlay.active {
+        display: block;
+    }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 380px) {
+    .mobile-toggle {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+        top: 20px;
+        left: 20px;
+    }
+    
+    .left-panel {
+        width: 250px;
+    }
+    
+    .hexagon-btn {
+        width: 75px;
+        height: 65px;
+    }
+    
+    .hexagon-half-top, .hexagon-half-bottom {
+        width: 65px;
+        height: 36px;
+        font-size: 9px;
+    }
+    
+    .container-rect {
+        padding: 10px;
+        gap: 8px;
+    }
+    
+    .modal-content {
+        padding: 15px;
+    }
+    
+    .modal-miniaturas {
+        gap: 10px;
+    }
+    
+    .connection-modal-content {
+        padding: 25px;
+    }
+    
+    .connection-modal-content h2 {
+        font-size: 20px;
     }
 }

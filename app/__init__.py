@@ -1,13 +1,13 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
-from sqlalchemy.pool import QueuePool
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
-db = SQLAlchemy()
+#from flask_sqlalchemy import SQLAlchemy
+#from flask_cors import CORS
+#from sqlalchemy.pool import QueuePool
+#import os
+#from dotenv import load_dotenv
+#
+#load_dotenv()
+#
+#db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
@@ -41,7 +41,7 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # Inicializar la base de datos
-    db.init_app(app)
+    #db.init_app(app)
     
     # Registrar blueprints """
     from .routes import bp as routes_bp

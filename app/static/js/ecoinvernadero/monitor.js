@@ -23,17 +23,87 @@ let state = {
         suelo: ['---', '---', '---', '---', '---', '---']
     },
     connected: false,
-    rectPositions: []
+    rectPositions: [],
+    mobileMenuOpen: false
 };
 
 // ==================== INICIALIZACIÓN ====================
 function init() {
+    createMobileToggle();
+    createMobileOverlay();
     createHexagonButtons();
     createRectangles();
     setupModalEvents();
     setupConnectionModalEvents();
     setupInfoPanelEvents();
+    setupMobileMenu();
     setupWebSocket();
+    handleResize();
+    window.addEventListener('resize', handleResize);
+}
+
+// ==================== MENÚ MÓVIL ====================
+function createMobileToggle() {
+    const toggle = document.createElement('button');
+    toggle.className = 'mobile-toggle';
+    toggle.id = 'mobileToggle';
+    toggle.innerHTML = '+';
+    document.body.appendChild(toggle);
+}
+
+function createMobileOverlay() {
+    const overlay = document.createElement('div');
+    overlay.className = 'mobile-overlay';
+    overlay.id = 'mobileOverlay';
+    document.body.appendChild(overlay);
+}
+
+function setupMobileMenu() {
+    const toggle = document.getElementById('mobileToggle');
+    const overlay = document.getElementById('mobileOverlay');
+    const leftPanel = document.getElementById('leftPanel');
+    
+    toggle.addEventListener('click', () => {
+        state.mobileMenuOpen = !state.mobileMenuOpen;
+        
+        if (state.mobileMenuOpen) {
+            leftPanel.classList.add('active');
+            overlay.classList.add('active');
+            toggle.innerHTML = '×';
+        } else {
+            leftPanel.classList.remove('active');
+            overlay.classList.remove('active');
+            toggle.innerHTML = '+';
+        }
+    });
+    
+    overlay.addEventListener('click', () => {
+        if (state.mobileMenuOpen) {
+            state.mobileMenuOpen = false;
+            leftPanel.classList.remove('active');
+            overlay.classList.remove('active');
+            toggle.innerHTML = '+';
+        }
+    });
+}
+
+function handleResize() {
+    const leftPanel = document.getElementById('leftPanel');
+    const overlay = document.getElementById('mobileOverlay');
+    const toggle = document.getElementById('mobileToggle');
+    
+    // Si la pantalla es mayor a 640px, asegurarse de que el panel esté visible
+    if (window.innerWidth > 640) {
+        leftPanel.classList.remove('active');
+        overlay.classList.remove('active');
+        toggle.innerHTML = '+';
+        state.mobileMenuOpen = false;
+    } else {
+        // En móvil, mantener el estado actual
+        if (!state.mobileMenuOpen) {
+            leftPanel.classList.remove('active');
+        }
+    }
 }
 
 // ==================== CREAR BOTONES HEXÁGONOS ====================
@@ -49,7 +119,10 @@ function createHexagonButtons() {
     btnFlor.innerHTML = `<img src="${flor.image}" alt="${flor.name}">`;
     btnFlor.style.gridColumn = '1';
     btnFlor.style.gridRow = '1';
-    btnFlor.addEventListener('click', () => openModal(flor.name));
+    btnFlor.addEventListener('click', () => {
+        openModal(flor.name);
+        closeMobileMenu();
+    });
     plantsGrid.appendChild(btnFlor);
 
     // 🧼 Limpiar (Fila 1, Col 2)
@@ -58,7 +131,10 @@ function createHexagonButtons() {
     btnLimpiar.textContent = 'Limpiar';
     btnLimpiar.style.gridColumn = '2';
     btnLimpiar.style.gridRow = '1';
-    btnLimpiar.addEventListener('click', () => openModal('Limpiar'));
+    btnLimpiar.addEventListener('click', () => {
+        openModal('Limpiar');
+        closeMobileMenu();
+    });
     plantsGrid.appendChild(btnLimpiar);
 
     // 🍅 Tomate (Fila 2, Col 1)
@@ -68,7 +144,10 @@ function createHexagonButtons() {
     btnTomate.innerHTML = `<img src="${tomate.image}" alt="${tomate.name}">`;
     btnTomate.style.gridColumn = '1';
     btnTomate.style.gridRow = '2';
-    btnTomate.addEventListener('click', () => openModal(tomate.name));
+    btnTomate.addEventListener('click', () => {
+        openModal(tomate.name);
+        closeMobileMenu();
+    });
     plantsGrid.appendChild(btnTomate);
 
     // 🌿 Cilantro (Fila 2, Col 2)
@@ -78,7 +157,10 @@ function createHexagonButtons() {
     btnCilantro.innerHTML = `<img src="${cilantro.image}" alt="${cilantro.name}">`;
     btnCilantro.style.gridColumn = '2';
     btnCilantro.style.gridRow = '2';
-    btnCilantro.addEventListener('click', () => openModal(cilantro.name));
+    btnCilantro.addEventListener('click', () => {
+        openModal(cilantro.name);
+        closeMobileMenu();
+    });
     plantsGrid.appendChild(btnCilantro);
 
     // 🧄 Ajo (Fila 3, Col 1)
@@ -88,7 +170,10 @@ function createHexagonButtons() {
     btnAjo.innerHTML = `<img src="${ajo.image}" alt="${ajo.name}">`;
     btnAjo.style.gridColumn = '1';
     btnAjo.style.gridRow = '3';
-    btnAjo.addEventListener('click', () => openModal(ajo.name));
+    btnAjo.addEventListener('click', () => {
+        openModal(ajo.name);
+        closeMobileMenu();
+    });
     plantsGrid.appendChild(btnAjo);
 
     // 🥬 Col (Fila 3, Col 2)
@@ -98,7 +183,10 @@ function createHexagonButtons() {
     btnCol.innerHTML = `<img src="${col.image}" alt="${col.name}">`;
     btnCol.style.gridColumn = '2';
     btnCol.style.gridRow = '3';
-    btnCol.addEventListener('click', () => openModal(col.name));
+    btnCol.addEventListener('click', () => {
+        openModal(col.name);
+        closeMobileMenu();
+    });
     plantsGrid.appendChild(btnCol);
 
     // 🌱 Menta (Fila 4, Col 1)
@@ -108,7 +196,10 @@ function createHexagonButtons() {
     btnMenta.innerHTML = `<img src="${menta.image}" alt="${menta.name}">`;
     btnMenta.style.gridColumn = '1';
     btnMenta.style.gridRow = '4';
-    btnMenta.addEventListener('click', () => openModal(menta.name));
+    btnMenta.addEventListener('click', () => {
+        openModal(menta.name);
+        closeMobileMenu();
+    });
     plantsGrid.appendChild(btnMenta);
 
     // 🍓 Fresa (Fila 4, Col 2)
@@ -118,19 +209,24 @@ function createHexagonButtons() {
     btnFresa.innerHTML = `<img src="${fresa.image}" alt="${fresa.name}">`;
     btnFresa.style.gridColumn = '2';
     btnFresa.style.gridRow = '4';
-    btnFresa.addEventListener('click', () => openModal(fresa.name));
+    btnFresa.addEventListener('click', () => {
+        openModal(fresa.name);
+        closeMobileMenu();
+    });
     plantsGrid.appendChild(btnFresa);
 
-    // Pimiento (Fila 5, Col 1)
+    // 🌶️ Pimiento (Fila 5, Col 1)
     const pimiento = HEXAGON_BUTTONS[7];
     const btnPimiento = document.createElement('button');
     btnPimiento.className = `hexagon-btn ${pimiento.color}`;
     btnPimiento.innerHTML = `<img src="${pimiento.image}" alt="${pimiento.name}">`;
     btnPimiento.style.gridColumn = '1';
     btnPimiento.style.gridRow = '5';
-    btnPimiento.addEventListener('click', () => openModal(pimiento.name));
+    btnPimiento.addEventListener('click', () => {
+        openModal(pimiento.name);
+        closeMobileMenu();
+    });
     plantsGrid.appendChild(btnPimiento);
-
 
     // 🔌 Conectar (Fila 5, Col 2)
     const btnConectar = document.createElement('button');
@@ -139,10 +235,22 @@ function createHexagonButtons() {
     btnConectar.textContent = 'Conectar';
     btnConectar.style.gridColumn = '2';
     btnConectar.style.gridRow = '5';
-    btnConectar.addEventListener('click', openConnectionModal);
+    btnConectar.addEventListener('click', () => {
+        openConnectionModal();
+        closeMobileMenu();
+    });
     plantsGrid.appendChild(btnConectar);
 
     leftPanel.appendChild(plantsGrid);
+}
+
+function closeMobileMenu() {
+    if (window.innerWidth <= 640 && state.mobileMenuOpen) {
+        state.mobileMenuOpen = false;
+        document.getElementById('leftPanel').classList.remove('active');
+        document.getElementById('mobileOverlay').classList.remove('active');
+        document.getElementById('mobileToggle').innerHTML = '+';
+    }
 }
 
 // ==================== CREAR RECTÁNGULOS ====================
@@ -306,20 +414,30 @@ function showInfoPanel(index, rectElement) {
     }
 
     const content = `
-                <div class="data-line">🌱 <strong>Planta:</strong> ${plantData ? plantData.name : '---'}</div>
-                <div class="data-line">💧 <strong>Humedad tierra:</strong> ${data.suelo[index] || '---'}%</div>
-                <div class="data-line">🌡️ <strong>Temperatura:</strong> ${data.temp}°C</div>
-                <div class="data-line">💨 <strong>Humedad aire:</strong> ${data.hum}%</div>
-                <div class="data-line">💦 <strong>Nivel agua:</strong> ${data.agua}L</div>
-            `;
+        <div class="data-line">🌱 <strong>Planta:</strong> ${plantData ? plantData.name : '---'}</div>
+        <div class="data-line">💧 <strong>Humedad tierra:</strong> ${data.suelo[index] || '---'}%</div>
+        <div class="data-line">🌡️ <strong>Temperatura:</strong> ${data.temp}°C</div>
+        <div class="data-line">💨 <strong>Humedad aire:</strong> ${data.hum}%</div>
+        <div class="data-line">💦 <strong>Nivel agua:</strong> ${data.agua}L</div>
+    `;
 
     infoContent.innerHTML = content;
     infoPanel.classList.add('active');
 
-    // Posicionar el panel sobre el rectángulo
+    // Posicionar el panel sobre el rectángulo (ajustado para responsive)
     const rect = rectElement.getBoundingClientRect();
-    infoPanel.style.left = (rect.left + rect.width / 2 - 140) + 'px';
-    infoPanel.style.top = (rect.top - 80) + 'px';
+    const panelWidth = 280;
+    
+    // En móvil, centrar el panel
+    if (window.innerWidth <= 640) {
+        infoPanel.style.left = '50%';
+        infoPanel.style.top = '50%';
+        infoPanel.style.transform = 'translate(-50%, -50%)';
+    } else {
+        infoPanel.style.transform = 'none';
+        infoPanel.style.left = (rect.left + rect.width / 2 - panelWidth / 2) + 'px';
+        infoPanel.style.top = (rect.top - 80) + 'px';
+    }
 }
 
 // ==================== WEBSOCKET ====================

@@ -1,14 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}iwa - Ecoinvernadero Monitor{% endblock %}
+{% block title %}Ecoinvernadero Monitor{% endblock %}
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/ecoinvernadero/monitor.css') }}">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 {% endblock %}
 
-
 {% block content %}
-
 
 <div class="main-container">
     <!-- PANEL IZQUIERDO -->
@@ -39,6 +38,7 @@
     </div>
 </div>
 
+<!-- MODAL DE SELECCIÓN -->
 <div class="modal" id="modal">
     <div class="modal-content">
         <button class="modal-close" id="modalClose">X</button>

@@ -1,6 +1,8 @@
 // ==================== CONFIGURACIÓN ====================
-const GAME_WIDTH = 1200;
-const GAME_HEIGHT = 800;
+// Eliminamos las dimensiones fijas y usaremos el viewport completo
+let GAME_WIDTH = window.innerWidth;
+let GAME_HEIGHT = window.innerHeight;
+
 const FPS = 60;
 
 // Colores
@@ -17,7 +19,8 @@ const COLORS = {
     GOLD: '#ffd700',
     GRAY: 'rgb(170, 170, 170)',
     LED_RED: '#ff0000',
-    DARK_CABLE: 'rgb(20, 20, 25)'
+    DARK_CABLE: 'rgb(20, 20, 25)',
+    TURQUESA: '#1FC9BA'
 };
 
 const CABLE_COLORS = [
@@ -35,12 +38,13 @@ const GameState = {
 
 // ==================== CLASES ====================
 class Notification {
-    constructor(text, x, y) {
+    constructor(text, x, y, scaleFactor) {
         this.text = text;
         this.x = x;
         this.y = y;
         this.timer = 120;
         this.alpha = 1;
+        this.scaleFactor = scaleFactor;
     }
 
     update() {
@@ -51,7 +55,7 @@ class Notification {
 }
 
 class Electron {
-    constructor(x, y, lane, level, gameHeight, gameWidth) {
+    constructor(x, y, lane, level, gameHeight, gameWidth, scaleFactor) {
         this.initialX = x;
         this.initialY = y;
         this.x = x;
@@ -59,22 +63,23 @@ class Electron {
         this.lane = lane;
         this.voltage = 5.0;
         this.speed = 1 + level * 0.2;
-        this.radius = 15;
+        this.radius = 15 * scaleFactor;
         this.gameHeight = gameHeight;
         this.gameWidth = gameWidth;
         this.colliding = false;
+        this.scaleFactor = scaleFactor;
     }
 
     update(gameSpeed) {
         this.y += this.speed * gameSpeed;
 
-        const offset = 80 / this.gameHeight;
+        const offset = (80 * this.scaleFactor) / this.gameHeight;
         if (this.lane === 0) {
-            this.x = this.initialX - (this.y - this.initialY) * offset - 10;
+            this.x = this.initialX - (this.y - this.initialY) * offset - (10 * this.scaleFactor);
         } else if (this.lane === 1) {
             this.x = this.initialX;
         } else if (this.lane === 2) {
-            this.x = this.initialX + (this.y - this.initialY) * offset + 12;
+            this.x = this.initialX + (this.y - this.initialY) * offset + (12 * this.scaleFactor);
         }
     }
 
@@ -91,26 +96,27 @@ class Electron {
 
         if (this.voltage >= 3.0 && this.voltage <= 3.3) {
             ctx.strokeStyle = COLORS.LED_BONUS;
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 3 * this.scaleFactor;
             ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius + 2, 0, Math.PI * 2);
+            ctx.arc(this.x, this.y, this.radius + (2 * this.scaleFactor), 0, Math.PI * 2);
             ctx.stroke();
         }
 
         ctx.fillStyle = COLORS.WHITE;
-        ctx.font = `bold ${fontSize}px Arial`;
+        ctx.font = `bold ${fontSize * this.scaleFactor}px Arial`;
         ctx.textAlign = 'center';
-        ctx.fillText(this.voltage.toFixed(1) + 'V', this.x, this.y - 25);
+        ctx.fillText(this.voltage.toFixed(1) + 'V', this.x, this.y - (25 * this.scaleFactor));
     }
 }
 
 class Player {
-    constructor(lanes, gameX, gameY, gameHeight, gameWidth) {
+    constructor(lanes, gameX, gameY, gameHeight, gameWidth, scaleFactor) {
         this.lanes = lanes;
         this.gameX = gameX;
         this.gameY = gameY;
         this.lane = 1;
         this.targetLane = 1;
+        this.scaleFactor = scaleFactor;
 
         this.width = gameWidth * 0.09;
         this.height = gameHeight * 0.09;
@@ -119,7 +125,7 @@ class Player {
         this.x = this.lanes[this.lane];
         this.targetX = this.x;
 
-        this.moveSpeed = 8;
+        this.moveSpeed = 8 * scaleFactor;
         this.gameHeight = gameHeight;
         this.gameWidth = gameWidth;
     }
@@ -139,14 +145,14 @@ class Player {
     }
 
     updateTargetPosition() {
-        const offset = 80 / 680;
+        const offset = (80 * this.scaleFactor) / 680;
 
         if (this.targetLane === 0) {
-            this.targetX = this.lanes[0] - (this.y - this.gameY) * offset - 10;
+            this.targetX = this.lanes[0] - (this.y - this.gameY) * offset - (10 * this.scaleFactor);
         } else if (this.targetLane === 1) {
             this.targetX = this.lanes[1];
         } else if (this.targetLane === 2) {
-            this.targetX = this.lanes[2] + (this.y - this.gameY) * offset + 27;
+            this.targetX = this.lanes[2] + (this.y - this.gameY) * offset + (27 * this.scaleFactor);
         }
     }
 
@@ -173,36 +179,23 @@ class Player {
         ctx.fillRect(x + this.width * 0.625, y + this.height * 0.1, stripeWidth, this.height * 0.8);
 
         ctx.strokeStyle = COLORS.GOLD;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2 * this.scaleFactor;
         ctx.strokeRect(x, y, this.width, this.height);
     }
 }
-
 
 class ResistenciaOhm {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
-        this.WIDTH = canvas.width;
-        this.HEIGHT = canvas.height;
-
-        this.gameWidth = this.WIDTH * 0.4;
-        this.gameHeight = this.HEIGHT * 0.8;
-
-        this.gameX = (this.WIDTH - this.gameWidth) * 0.5;
-        this.gameY = (this.HEIGHT - this.gameHeight) * 0.5;
-
-        const centerX = this.gameX + this.gameWidth / 2;
-        const laneSpacing = this.gameWidth / 3;
-        this.lanes = [
-            centerX - laneSpacing / 1.5,
-            centerX,
-            centerX + laneSpacing / 1.5
-        ];
+        this.resize();
+        
+        // Escala para mantener proporciones en diferentes pantallas
+        this.scaleFactor = Math.min(this.WIDTH, this.HEIGHT) / 800;
 
         this.cableColor = CABLE_COLORS[Math.floor(Math.random() * CABLE_COLORS.length)];
 
-        this.player = new Player(this.lanes, this.gameX, this.gameY, this.gameHeight, this.gameWidth);
+        this.player = new Player(this.lanes, this.gameX, this.gameY, this.gameHeight, this.gameWidth, this.scaleFactor);
         this.electrons = [];
         this.notifications = [];
 
@@ -220,7 +213,7 @@ class ResistenciaOhm {
         this.ledBonusEffect = 0;
         this.bossY = this.gameY + this.gameHeight * 0.1;
         this.bossLane = 1;
-        this.bossRadius = 25;
+        this.bossRadius = 25 * this.scaleFactor;
 
         // Touch controls
         this.touchStartX = 0;
@@ -228,6 +221,41 @@ class ResistenciaOhm {
 
         this.updateSpawnInterval();
         this.setupEventListeners();
+        
+        // Agregar listener para redimensionamiento
+        window.addEventListener('resize', () => this.resize());
+    }
+
+    resize() {
+        // Actualizar dimensiones del canvas
+        this.WIDTH = window.innerWidth;
+        this.HEIGHT = window.innerHeight;
+        this.canvas.width = this.WIDTH;
+        this.canvas.height = this.HEIGHT;
+        
+        // Recalcular factor de escala
+        this.scaleFactor = Math.min(this.WIDTH, this.HEIGHT) / 800;
+        
+        // Recalcular dimensiones del juego
+        this.gameWidth = this.WIDTH * 0.4;
+        this.gameHeight = this.HEIGHT * 0.8;
+
+        this.gameX = (this.WIDTH - this.gameWidth) * 0.5;
+        this.gameY = (this.HEIGHT - this.gameHeight) * 0.5;
+
+        const centerX = this.gameX + this.gameWidth / 2;
+        const laneSpacing = this.gameWidth / 3;
+        this.lanes = [
+            centerX - laneSpacing / 1.5,
+            centerX,
+            centerX + laneSpacing / 1.5
+        ];
+        
+        // Recrear jugador con nuevas dimensiones
+        this.player = new Player(this.lanes, this.gameX, this.gameY, this.gameHeight, this.gameWidth, this.scaleFactor);
+        
+        // Recalcular radio del jefe
+        this.bossRadius = 25 * this.scaleFactor;
     }
 
     setupEventListeners() {
@@ -238,6 +266,7 @@ class ResistenciaOhm {
         // Touch events
         this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e), false);
         this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e), false);
+        this.canvas.addEventListener('touchmove', (e) => this.handleTouchMove(e), false);
     }
 
     handleKeyDown(e) {
@@ -267,6 +296,12 @@ class ResistenciaOhm {
         const touch = e.touches[0];
         this.touchStartX = touch.clientX;
         this.touchActive = true;
+        e.preventDefault();
+    }
+
+    handleTouchMove(e) {
+        if (this.state !== GameState.PLAYING || !this.touchActive) return;
+        e.preventDefault();
     }
 
     handleTouchEnd(e) {
@@ -275,7 +310,7 @@ class ResistenciaOhm {
         const touch = e.changedTouches[0];
         const touchEndX = touch.clientX;
         const diff = touchEndX - this.touchStartX;
-        const minSwipeDistance = 30;
+        const minSwipeDistance = 30 * this.scaleFactor;
 
         if (Math.abs(diff) > minSwipeDistance) {
             if (diff < 0) {
@@ -288,6 +323,7 @@ class ResistenciaOhm {
         }
 
         this.touchActive = false;
+        e.preventDefault();
     }
 
     handleClick(e) {
@@ -297,10 +333,10 @@ class ResistenciaOhm {
         const x = (e.clientX - rect.left) * (this.WIDTH / rect.width);
         const y = (e.clientY - rect.top) * (this.HEIGHT / rect.height);
 
-        const buttonX = this.WIDTH / 2 - 80;
-        const buttonY = this.HEIGHT / 2 + 100;
-        const buttonW = 160;
-        const buttonH = 50;
+        const buttonX = this.WIDTH / 2 - 80 * this.scaleFactor;
+        const buttonY = this.HEIGHT / 2 + 100 * this.scaleFactor;
+        const buttonW = 160 * this.scaleFactor;
+        const buttonH = 50 * this.scaleFactor;
 
         if (x >= buttonX && x <= buttonX + buttonW && y >= buttonY && y <= buttonY + buttonH) {
             this.state = GameState.PLAYING;
@@ -308,7 +344,7 @@ class ResistenciaOhm {
     }
 
     showNotification(text) {
-        const notif = new Notification(text, this.WIDTH * 0.7, this.HEIGHT * 0.1);
+        const notif = new Notification(text, this.WIDTH * 0.7, this.HEIGHT * 0.1, this.scaleFactor);
         this.notifications.push(notif);
     }
 
@@ -326,7 +362,8 @@ class ResistenciaOhm {
             lane,
             this.level,
             this.gameHeight,
-            this.gameWidth
+            this.gameWidth,
+            this.scaleFactor
         );
         this.electrons.push(electron);
     }
@@ -436,7 +473,7 @@ class ResistenciaOhm {
     drawLanes() {
         const startY = this.gameY;
         const endY = this.gameY + this.gameHeight;
-        const offset = 100;
+        const offset = 100 * this.scaleFactor;
         const centerX = this.gameX + this.gameWidth / 2;
         const laneSpacing = this.gameWidth / 3;
 
@@ -447,7 +484,7 @@ class ResistenciaOhm {
         ];
 
         this.ctx.strokeStyle = COLORS.LANE_GRAY;
-        this.ctx.lineWidth = 6;
+        this.ctx.lineWidth = 6 * this.scaleFactor;
 
         for (let i = 0; i < xPositions.length; i++) {
             this.ctx.beginPath();
@@ -469,12 +506,12 @@ class ResistenciaOhm {
         const startY = this.gameY;
         const endY = this.gameY + this.gameHeight;
         const leftStartX = this.gameX;
-        const leftEndX = this.gameX - 100;
+        const leftEndX = this.gameX - 100 * this.scaleFactor;
         const rightStartX = this.gameX + this.gameWidth;
-        const rightEndX = this.gameX + this.gameWidth + 100;
+        const rightEndX = this.gameX + this.gameWidth + 100 * this.scaleFactor;
 
         this.ctx.strokeStyle = this.cableColor;
-        this.ctx.lineWidth = 15;
+        this.ctx.lineWidth = 15 * this.scaleFactor;
 
         this.ctx.beginPath();
         this.ctx.moveTo(leftStartX, startY);
@@ -491,8 +528,8 @@ class ResistenciaOhm {
         const points = [
             [this.gameX, this.gameY],
             [this.gameX + this.gameWidth, this.gameY],
-            [this.gameX + this.gameWidth + 100, this.gameY + this.gameHeight],
-            [this.gameX - 100, this.gameY + this.gameHeight]
+            [this.gameX + this.gameWidth + 100 * this.scaleFactor, this.gameY + this.gameHeight],
+            [this.gameX - 100 * this.scaleFactor, this.gameY + this.gameHeight]
         ];
 
         this.ctx.fillStyle = COLORS.DARK_CABLE;
@@ -520,7 +557,7 @@ class ResistenciaOhm {
     }
 
     drawBossElectron() {
-        const offset = 80 / this.gameHeight;
+        const offset = (80 * this.scaleFactor) / this.gameHeight;
         let bossX = this.lanes[this.bossLane];
         if (this.bossLane === 0) bossX -= (this.bossY - this.gameY) * offset;
         else if (this.bossLane === 2) bossX += (this.bossY - this.gameY) * offset;
@@ -531,44 +568,46 @@ class ResistenciaOhm {
         this.ctx.fill();
 
         this.ctx.strokeStyle = COLORS.WHITE;
-        this.ctx.lineWidth = 2;
+        this.ctx.lineWidth = 2 * this.scaleFactor;
         this.ctx.beginPath();
         this.ctx.arc(bossX, this.bossY, this.bossRadius, 0, Math.PI * 2);
         this.ctx.stroke();
 
-        const eyeRadius = 3;
+        const eyeRadius = 3 * this.scaleFactor;
         this.ctx.fillStyle = COLORS.BLACK;
         this.ctx.beginPath();
-        this.ctx.arc(bossX - 7, this.bossY - 5, eyeRadius, 0, Math.PI * 2);
+        this.ctx.arc(bossX - 7 * this.scaleFactor, this.bossY - 5 * this.scaleFactor, eyeRadius, 0, Math.PI * 2);
         this.ctx.fill();
         this.ctx.beginPath();
-        this.ctx.arc(bossX + 7, this.bossY - 5, eyeRadius, 0, Math.PI * 2);
+        this.ctx.arc(bossX + 7 * this.scaleFactor, this.bossY - 5 * this.scaleFactor, eyeRadius, 0, Math.PI * 2);
         this.ctx.fill();
 
         this.ctx.strokeStyle = COLORS.BLACK;
-        this.ctx.lineWidth = 2;
+        this.ctx.lineWidth = 2 * this.scaleFactor;
         this.ctx.beginPath();
-        this.ctx.arc(bossX, this.bossY + 3, 8, Math.PI, 0);
+        this.ctx.arc(bossX, this.bossY + 3 * this.scaleFactor, 8 * this.scaleFactor, Math.PI, 0);
         this.ctx.stroke();
     }
 
     drawUI() {
-        const panelX = this.gameX - 250;
-        const panelY = this.gameY + 20;
-        const panelW = 220;
-        const panelH = 130;
+        const scaleFactor = this.scaleFactor;
+        const panelW = 220 * scaleFactor;
+        const panelH = 130 * scaleFactor;
+        const panelX = this.gameX - (panelW + 30 * scaleFactor);
+        const panelY = this.gameY + 20 * scaleFactor;
+        const cornerRadius = 15 * scaleFactor;
 
-        // Panel con bordes redondeados y estilo institucional
-        this.roundRect(this.ctx, panelX, panelY, panelW, panelH, 15, '#FFF7E6'); // BEIGE
-        this.ctx.strokeStyle = '#1FC9BA'; // TURQUESA
-        this.ctx.lineWidth = 3;
+        // Panel con bordes redondeados
+        this.roundRect(this.ctx, panelX, panelY, panelW, panelH, cornerRadius, '#FFF7E6');
+        this.ctx.strokeStyle = '#1FC9BA';
+        this.ctx.lineWidth = 3 * scaleFactor;
         this.ctx.stroke();
 
-        // Título pequeño
-        this.ctx.fillStyle = '#079382'; // VERDE AZULADO
-        this.ctx.font = 'bold 20px Comic Sans MS';
+        // Título
+        this.ctx.fillStyle = '#079382';
+        this.ctx.font = `bold ${20 * scaleFactor}px Comic Sans MS`;
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('📊 Estado', panelX + panelW / 2, panelY + 30);
+        this.ctx.fillText('📊 Estado', panelX + panelW / 2, panelY + 30 * scaleFactor);
 
         // Estadísticas
         const stats = [
@@ -577,12 +616,12 @@ class ResistenciaOhm {
             `🚀 Nivel: ${this.level}`
         ];
 
-        this.ctx.fillStyle = '#06473d'; // VERDE PETROLEO
-        this.ctx.font = '18px Comic Sans MS';
-        let yOffset = panelY + 65;
+        this.ctx.fillStyle = '#06473d';
+        this.ctx.font = `${16 * scaleFactor}px Comic Sans MS`;
+        let yOffset = panelY + 65 * scaleFactor;
         for (const stat of stats) {
             this.ctx.fillText(stat, panelX + panelW / 2, yOffset);
-            yOffset += 25;
+            yOffset += 25 * scaleFactor;
         }
     }
 
@@ -591,48 +630,47 @@ class ResistenciaOhm {
             this.ctx.globalAlpha = notif.alpha;
 
             // Fondo redondeado para la notificación
-            const notifW = 260;
-            const notifH = 50;
+            const notifW = 260 * notif.scaleFactor;
+            const notifH = 50 * notif.scaleFactor;
             const notifX = notif.x - notifW / 2;
             const notifY = notif.y - notifH / 2;
 
-            this.roundRect(this.ctx, notifX, notifY, notifW, notifH, 15, '#FFF7E6'); // BEIGE
-            this.ctx.strokeStyle = '#CEED1B'; // VERDE LIMÓN
-            this.ctx.lineWidth = 2;
+            this.roundRect(this.ctx, notifX, notifY, notifW, notifH, 15 * notif.scaleFactor, '#FFF7E6');
+            this.ctx.strokeStyle = '#CEED1B';
+            this.ctx.lineWidth = 2 * notif.scaleFactor;
             this.ctx.stroke();
 
             // Texto de la notificación
-            this.ctx.fillStyle = '#079382'; // VERDE AZULADO
-            this.ctx.font = 'bold 20px Comic Sans MS';
+            this.ctx.fillStyle = '#079382';
+            this.ctx.font = `bold ${20 * notif.scaleFactor}px Comic Sans MS`;
             this.ctx.textAlign = 'center';
-            this.ctx.fillText(notif.text, notif.x, notif.y + 7);
+            this.ctx.fillText(notif.text, notif.x, notif.y + 7 * notif.scaleFactor);
 
             this.ctx.globalAlpha = 1;
         }
     }
 
-
     drawMenu() {
         // Fondo semitransparente
-        this.ctx.fillStyle = 'rgba(6, 71, 61, 0.85)'; // VERDE_PETROLEO con transparencia
+        this.ctx.fillStyle = 'rgba(6, 71, 61, 0.85)';
         this.ctx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
 
-        const menuW = 600;
-        const menuH = 400;
+        const menuW = 600 * this.scaleFactor;
+        const menuH = 400 * this.scaleFactor;
         const menuX = this.WIDTH / 2 - menuW / 2;
         const menuY = this.HEIGHT / 2 - menuH / 2;
 
         // Panel principal con bordes redondeados
-        this.roundRect(this.ctx, menuX, menuY, menuW, menuH, 25, '#FFF7E6'); // BEIGE
-        this.ctx.strokeStyle = '#1FC9BA'; // TURQUESA
-        this.ctx.lineWidth = 4;
+        this.roundRect(this.ctx, menuX, menuY, menuW, menuH, 25 * this.scaleFactor, '#FFF7E6');
+        this.ctx.strokeStyle = '#1FC9BA';
+        this.ctx.lineWidth = 4 * this.scaleFactor;
         this.ctx.stroke();
 
         // Título
-        this.ctx.fillStyle = '#079382'; // VERDE_AZULADO
-        this.ctx.font = 'bold 40px Comic Sans MS';
+        this.ctx.fillStyle = '#079382';
+        this.ctx.font = `bold ${40 * this.scaleFactor}px Comic Sans MS`;
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('🌟 La Magia de la Ley de Ohm 🌟', this.WIDTH / 2, menuY + 60);
+        this.ctx.fillText('🌟 La Magia de la Ley de Ohm 🌟', this.WIDTH / 2, menuY + 60 * this.scaleFactor);
 
         const rules = [
             '1. Usa A/Q o D/Flechas para moverte ⚡',
@@ -642,63 +680,63 @@ class ResistenciaOhm {
         ];
 
         // Reglas
-        this.ctx.fillStyle = '#06473d'; // VERDE PETROLEO oscuro
-        this.ctx.font = '20px Comic Sans MS';
-        let yOffset = menuY + 110;
+        this.ctx.fillStyle = '#06473d';
+        this.ctx.font = `${20 * this.scaleFactor}px Comic Sans MS`;
+        let yOffset = menuY + 110 * this.scaleFactor;
         for (const rule of rules) {
             this.ctx.fillText(rule, this.WIDTH / 2, yOffset);
-            yOffset += 40;
+            yOffset += 40 * this.scaleFactor;
         }
 
         // Botón de acción
-        const btnW = 200;
-        const btnH = 60;
+        const btnW = 200 * this.scaleFactor;
+        const btnH = 60 * this.scaleFactor;
         const btnX = this.WIDTH / 2 - btnW / 2;
-        const btnY = menuY + menuH - 90;
+        const btnY = menuY + menuH - 90 * this.scaleFactor;
 
-        this.roundRect(this.ctx, btnX, btnY, btnW, btnH, 15, '#CEED1B'); // VERDE LIMÓN
+        this.roundRect(this.ctx, btnX, btnY, btnW, btnH, 15 * this.scaleFactor, '#CEED1B');
         this.ctx.strokeStyle = '#079382';
-        this.ctx.lineWidth = 3;
+        this.ctx.lineWidth = 3 * this.scaleFactor;
         this.ctx.stroke();
 
         this.ctx.fillStyle = '#06473d';
-        this.ctx.font = 'bold 24px Comic Sans MS';
-        this.ctx.fillText('¡JUGAR AHORA!', this.WIDTH / 2, btnY + 40);
+        this.ctx.font = `bold ${24 * this.scaleFactor}px Comic Sans MS`;
+        this.ctx.fillText('¡JUGAR AHORA!', this.WIDTH / 2, btnY + 40 * this.scaleFactor);
     }
 
     drawGameOver() {
         // Fondo oscuro con color institucional
-        this.ctx.fillStyle = 'rgba(7, 147, 130, 0.9)'; // VERDE_AZULADO translúcido
+        this.ctx.fillStyle = 'rgba(7, 147, 130, 0.9)';
         this.ctx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
 
-        const panelW = 450;
-        const panelH = 300;
+        const panelW = 450 * this.scaleFactor;
+        const panelH = 300 * this.scaleFactor;
         const panelX = (this.WIDTH - panelW) / 2;
         const panelY = (this.HEIGHT - panelH) / 2;
 
         // Panel redondeado
-        this.roundRect(this.ctx, panelX, panelY, panelW, panelH, 25, '#FFF7E6');
+        this.roundRect(this.ctx, panelX, panelY, panelW, panelH, 25 * this.scaleFactor, '#FFF7E6');
         this.ctx.strokeStyle = '#1FC9BA';
-        this.ctx.lineWidth = 4;
+        this.ctx.lineWidth = 4 * this.scaleFactor;
         this.ctx.stroke();
 
         // Título Game Over
         this.ctx.fillStyle = '#CEED1B';
-        this.ctx.font = 'bold 50px Comic Sans MS';
+        this.ctx.font = `bold ${50 * this.scaleFactor}px Comic Sans MS`;
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('¡Oh no! 😢', this.WIDTH / 2, panelY + 70);
+        this.ctx.fillText('¡Oh no! 😢', this.WIDTH / 2, panelY + 70 * this.scaleFactor);
 
         this.ctx.fillStyle = '#06473d';
-        this.ctx.font = '24px Comic Sans MS';
-        this.ctx.fillText('El LED no sobrevivió...', this.WIDTH / 2, panelY + 120);
+        this.ctx.font = `${24 * this.scaleFactor}px Comic Sans MS`;
+        this.ctx.fillText('El LED no sobrevivió...', this.WIDTH / 2, panelY + 120 * this.scaleFactor);
 
         this.ctx.fillStyle = '#079382';
-        this.ctx.font = '28px Comic Sans MS';
-        this.ctx.fillText(`Puntaje: ${this.points}`, this.WIDTH / 2, panelY + 170);
+        this.ctx.font = `${28 * this.scaleFactor}px Comic Sans MS`;
+        this.ctx.fillText(`Puntaje: ${this.points}`, this.WIDTH / 2, panelY + 170 * this.scaleFactor);
 
         this.ctx.fillStyle = '#1FC9BA';
-        this.ctx.font = '20px Comic Sans MS';
-        this.ctx.fillText('Presiona R para intentarlo de nuevo ✨', this.WIDTH / 2, panelY + 230);
+        this.ctx.font = `${20 * this.scaleFactor}px Comic Sans MS`;
+        this.ctx.fillText('Presiona R para intentarlo de nuevo ✨', this.WIDTH / 2, panelY + 230 * this.scaleFactor);
     }
 
     // 📐 Función auxiliar para dibujar paneles con bordes redondeados
@@ -718,18 +756,17 @@ class ResistenciaOhm {
         ctx.fill();
     }
 
-
     draw() {
         this.ctx.fillStyle = COLORS.VERDE_PETROLEO;
         this.ctx.fillRect(0, 0, this.WIDTH, this.HEIGHT);
 
-        const panelX = 20;
-        const panelY = 20;
-        const panelW = this.WIDTH - 40;
-        const panelH = this.HEIGHT - 40;
-        this.roundRect(this.ctx, panelX, panelY, panelW, panelH, 30, COLORS.BEIGE);
+        const panelX = 20 * this.scaleFactor;
+        const panelY = 20 * this.scaleFactor;
+        const panelW = this.WIDTH - 40 * this.scaleFactor;
+        const panelH = this.HEIGHT - 40 * this.scaleFactor;
+        this.roundRect(this.ctx, panelX, panelY, panelW, panelH, 30 * this.scaleFactor, COLORS.BEIGE);
         this.ctx.strokeStyle = COLORS.TURQUESA;
-        this.ctx.lineWidth = 3;
+        this.ctx.lineWidth = 3 * this.scaleFactor;
         this.ctx.stroke();
 
         if (this.state === GameState.MENU) {
@@ -760,8 +797,10 @@ class ResistenciaOhm {
 // ==================== INICIALIZACIÓN ====================
 function initGame() {
     const canvas = document.getElementById('gameCanvas');
-    canvas.width = GAME_WIDTH;
-    canvas.height = GAME_HEIGHT;
+    
+    // Usar dimensiones del viewport
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     const game = new ResistenciaOhm(canvas);
 

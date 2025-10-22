@@ -51,3 +51,7 @@ def ecoinvernadero():
 @bp.route('/carrera-extrema')
 def carrera_extrema():
     return render_template('carrera-extrema.html')
+
+@bp.route('/conectar')
+def conectar():
+    return render_template('conectar.html')
