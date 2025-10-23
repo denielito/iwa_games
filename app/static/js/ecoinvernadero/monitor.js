@@ -302,47 +302,11 @@ function setupConnectionModalEvents() {
     });
 }
 
-// ==================== CONEXIÓN CON ARDUINO ====================
-function conectarArduino(comPort) {
-    const btn = document.getElementById('btnConectar');
-    btn.disabled = true;
-    document.getElementById('loading').classList.add('active');
-    document.getElementById('connectionModal').classList.remove('active');
-
-    fetch('/api/connect-arduino', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ port: `COM${comPort}` })
-    })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('loading').classList.remove('active');
-            if (data.success) {
-                alert('✅ Arduino conectado correctamente');
-                state.connected = true;
-                btn.textContent = 'Desconectar';
-                btn.classList.remove('conectar-btn');
-                btn.classList.add('desconectar-btn');
-            } else {
-                alert('❌ Error: ' + data.message);
-                btn.disabled = false;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('❌ Error al conectar con Arduino');
-            document.getElementById('loading').classList.remove('active');
-            btn.disabled = false;
-        });
-}
-
 // ==================== MODAL SELECCIÓN ====================
 function openModal(component) {
     state.modalActive = true;
     state.modalBotonOrigen = component;
-    document.getElementById('modalHeader').textContent = `Seleccione un rectángulo para ${component}`;
+    document.getElementById('modalHeader').textContent = `En que maceta pondrás tu ${component}?`;
     document.getElementById('modal').classList.add('active');
 
     const modalMiniaturas = document.getElementById('modalMiniaturas');
@@ -439,6 +403,44 @@ function showInfoPanel(index, rectElement) {
         infoPanel.style.top = (rect.top - 80) + 'px';
     }
 }
+
+
+// ==================== CONEXIÓN CON ARDUINO ====================
+function conectarArduino(comPort) {
+    const btn = document.getElementById('btnConectar');
+    btn.disabled = true;
+    document.getElementById('loading').classList.add('active');
+    document.getElementById('connectionModal').classList.remove('active');
+
+    fetch('/api/connect-arduino', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ port: `COM${comPort}` })
+    })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('loading').classList.remove('active');
+            if (data.success) {
+                alert('✅ Arduino conectado correctamente');
+                state.connected = true;
+                btn.textContent = 'Desconectar';
+                btn.classList.remove('conectar-btn');
+                btn.classList.add('desconectar-btn');
+            } else {
+                alert('❌ Error: ' + data.message);
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('❌ Error al conectar con Arduino');
+            document.getElementById('loading').classList.remove('active');
+            btn.disabled = false;
+        });
+}
+
 
 // ==================== WEBSOCKET ====================
 function setupWebSocket() {

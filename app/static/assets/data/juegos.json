@@ -2,7 +2,7 @@
   "juegos": [
     {
       "nombre": "Ecoinvernadero",
-      "html": "ecoinvernadero.html",
+      "html": "conectar.html",
       "descripcion": "Conecta y simula el ecoinvernadero del futuro, gestionando recursos y optimizando el crecimiento de plantas.",
       "estado": "beta",
       "ultima_actualizacion": "2025-10-10",

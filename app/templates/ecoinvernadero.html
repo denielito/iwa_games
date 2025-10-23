@@ -4,6 +4,7 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/ecoinvernadero/monitor.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ecoinvernadero/instructions.css') }}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 {% endblock %}
 
@@ -61,6 +62,7 @@
     <p>Conectando con Arduino...</p>
 </div>
 
+<script src="{{ url_for('static', filename='js/ecoinvernadero/introduction.js') }}"></script>
 <script src="{{ url_for('static', filename='js/ecoinvernadero/monitor.js') }}"></script>
-
+<script src="{{ url_for('static', filename='js/arduino.js') }}"></script>
 {% endblock %}

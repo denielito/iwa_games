@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, jsonify, request
+from .arduino_connection import connect_arduino, disconnect_arduino
 import json
 import os
 
@@ -13,6 +14,7 @@ def cargar_juegos():
 @bp.route('/')
 def index():
     return render_template('index.html')
+
 
 @bp.route('/<nombre_juego>')
 def juego(nombre_juego):
@@ -48,10 +50,18 @@ def resistencia():
 def ecoinvernadero():
     return render_template('ecoinvernadero.html')
 
-@bp.route('/carrera-extrema')
-def carrera_extrema():
-    return render_template('carrera-extrema.html')
-
 @bp.route('/conectar')
 def conectar():
     return render_template('conectar.html')
+
+@bp.route('/api/connect-arduino', methods=['POST'])
+def api_connect_arduino():
+    data = request.get_json()
+    port = data.get('port')
+    success, message = connect_arduino(port)
+    return jsonify({"success": success, "message": message})
+
+@bp.route('/api/disconnect-arduino', methods=['POST'])
+def api_disconnect_arduino():
+    success, message = disconnect_arduino()
+    return jsonify({"success": success, "message": message})

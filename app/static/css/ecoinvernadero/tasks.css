@@ -1,0 +1,54 @@
+/* 🔹 Cuadro de tareas */
+.task-box {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 4px solid #079382;
+    border-radius: 15px;
+    padding: 15px 20px;
+    width: 270px;
+    color: #079382;
+    font-weight: bold;
+    z-index: 1500;
+    backdrop-filter: blur(6px);
+}
+
+.task-box h3 {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #079382;
+    text-transform: uppercase;
+}
+
+.task-box ul {
+    list-style: none;
+    padding: 0;
+}
+
+.task-box li {
+    font-size: 14px;
+    margin-bottom: 6px;
+    padding-left: 20px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.task-box li::before {
+    content: "⬜";
+    position: absolute;
+    left: 0;
+    color: #079382;
+}
+
+.task-box li.completed {
+    text-decoration: line-through;
+    color: #555;
+    opacity: 0.6;
+}
+
+.task-box li.completed::before {
+    content: "✅";
+    color: #079382;
+}

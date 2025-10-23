@@ -1,0 +1,260 @@
+    /* Modal de Bienvenida e Instrucciones */
+    .instructions-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(7, 147, 130, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 5000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    .instructions-overlay.show {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .instructions-modal {
+        background: linear-gradient(135deg, #FFF7E6 0%, #ffffff 100%);
+        border: 5px solid #079382;
+        border-radius: 30px;
+        padding: 30px 40px;
+        max-width: 90%;
+        width: 100%;
+        max-width: 600px;
+        text-align: center;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        animation: modalBounce 0.5s ease;
+        position: relative;
+        margin: auto;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    @keyframes modalBounce {
+        0% {
+            transform: scale(0.8) translateY(-50px);
+            opacity: 0;
+        }
+        60% {
+            transform: scale(1.05) translateY(0);
+        }
+        100% {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .instructions-modal h2 {
+        color: #079382;
+        font-size: clamp(20px, 5vw, 32px);
+        margin-bottom: 15px;
+        margin-top: 10px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .instructions-modal > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .instructions-modal p {
+        color: #333;
+        font-size: clamp(14px, 3vw, 18px);
+        line-height: 1.6;
+        margin: 12px 0;
+    }
+
+    .instructions-modal .component-list {
+        background: rgba(7, 147, 130, 0.1);
+        border-radius: 15px;
+        padding: 15px;
+        margin: 15px 0;
+    }
+
+    .instructions-modal .component-list p {
+        color: #079382;
+        font-weight: bold;
+        font-size: clamp(13px, 2.5vw, 16px);
+        margin: 6px 0;
+    }
+
+    .instructions-btn {
+        background: linear-gradient(135deg, #079382 0%, #0bbba4 100%);
+        color: #FEDF59;
+        border: none;
+        padding: clamp(12px, 2vw, 15px) clamp(25px, 5vw, 40px);
+        font-size: clamp(14px, 3vw, 18px);
+        font-weight: bold;
+        border-radius: 15px;
+        cursor: pointer;
+        margin-top: 15px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 5px 15px rgba(7, 147, 130, 0.4);
+        transition: all 0.3s ease;
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .instructions-btn:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 8px 20px rgba(7, 147, 130, 0.6);
+        background: linear-gradient(135deg, #0bbba4 0%, #079382 100%);
+    }
+
+    .instructions-btn:active {
+        transform: translateY(0) scale(1);
+    }
+
+    /* Decoración adicional */
+    .instructions-modal::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: clamp(60px, 12vw, 100px);
+        height: clamp(60px, 12vw, 100px);
+        background-image: url('/static/assets/sprites/logo.png'); /* Cambia esta ruta a tu imagen */
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        opacity: 0.12;
+        z-index: 0;
+        filter: grayscale(20%);
+    }
+
+    .highlight {
+        color: #079382;
+        font-weight: bold;
+    }
+
+    /* Estilos para pantallas pequeñas */
+    @media (max-width: 768px) {
+        .instructions-modal {
+            padding: 25px 20px;
+            border-radius: 20px;
+            border-width: 3px;
+            max-height: 85vh;
+        }
+
+        .instructions-modal::before {
+            top: -20px;
+            padding: 6px;
+            border-width: 3px;
+        }
+
+        .instructions-modal h2 {
+            margin-bottom: 12px;
+        }
+
+        .instructions-modal p {
+            margin: 10px 0;
+        }
+
+        .instructions-modal .component-list {
+            padding: 12px;
+            margin: 12px 0;
+            border-radius: 12px;
+        }
+
+        .instructions-modal .component-list p {
+            margin: 5px 0;
+        }
+
+        .instructions-btn {
+            margin-top: 12px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .instructions-overlay {
+            padding: 10px;
+        }
+
+        .instructions-modal {
+            padding: 20px 15px;
+            border-radius: 15px;
+            border-width: 2px;
+            max-height: 80vh;
+        }
+
+        .instructions-modal::before {
+            top: -15px;
+            padding: 5px;
+            border-width: 2px;
+        }
+
+        .instructions-modal h2 {
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .instructions-modal p {
+            margin: 8px 0;
+        }
+
+        .instructions-modal .component-list {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 10px;
+        }
+
+        .instructions-modal .component-list p {
+            margin: 4px 0;
+        }
+
+        .instructions-btn {
+            margin-top: 10px;
+            border-radius: 12px;
+        }
+    }
+
+    /* Para pantallas muy pequeñas (móviles en orientación vertical) */
+    @media (max-width: 360px) {
+        .instructions-modal {
+            padding: 15px 10px;
+            max-height: 75vh;
+        }
+
+        .instructions-modal::before {
+            display: none;
+        }
+
+        .instructions-modal .component-list p {
+            font-size: 12px;
+        }
+    }
+
+    /* Scroll personalizado para el modal */
+    .instructions-modal::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .instructions-modal::-webkit-scrollbar-track {
+        background: rgba(7, 147, 130, 0.1);
+        border-radius: 10px;
+    }
+
+    .instructions-modal::-webkit-scrollbar-thumb {
+        background: #079382;
+        border-radius: 10px;
+    }
+
+    .instructions-modal::-webkit-scrollbar-thumb:hover {
+        background: #0bbba4;
+    }
